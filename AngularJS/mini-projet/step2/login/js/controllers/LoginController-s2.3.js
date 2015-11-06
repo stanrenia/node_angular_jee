@@ -12,7 +12,7 @@ function loginCrtFnt($scope, $log, $window, auth){
     $scope.logAuthObject = function(user) {
         $log.info('user login Obj', user.login);
         $log.info('user pwd Obj', user.pwd);
-        var auth_response = auth.localAuthAsk(user.login, user.pwd);
+        var auth_response = auth.authAsk(user.login, user.pwd);
         auth_response.then(
             function(payload){
                 $log.info("login success: "+ payload.user + " - Auth: " + payload.ValidAuth);
