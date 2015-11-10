@@ -32,7 +32,7 @@
 			<div ng-repeat="slide in currentPresentation.slidArray" ng-click="selectCurrentSlid(slide)">
 				<span>{{slide.title}}</span>
                 <div ng-repeat="content in slide.contentMap | limitTo : 1">
-                    <img src="{{content.src}}"/>
+                    <img ng-src="{{content.src}}" alt="{{content.title}}"/>
                 </div>
 			</div>
 		</div>
@@ -54,7 +54,7 @@
             <div>
                 <span ng-if="isSlidContentEmpty(currentSlide)">NO IMAGE SET</span>
                 <div ng-if="!isSlidContentEmpty(currentSlide)" ng-repeat="content in currentSlide.contentMap | limitTo : 1">
-                    <img src="{{content.src}}"/>
+                    <img ng-src="{{content.src}}" alt="{{content.title}}"/>
                 </div>
             </div>
         </div>
