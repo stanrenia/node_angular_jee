@@ -9,30 +9,56 @@
 <body>
 	<div class="container-fluid fullScreenHeight zeroRef" >
 		<div class="row container-fluid fullScreenHeight ">
-<!-- *************
-	LEFT PANEL *************-->
+<!-- ************* LEFT PANEL *************-->
 	<div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 zeroRef fullScreenHeight divOverflow" >
 		<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 			<div class="btn-group" role="group" aria-label="...">
 				<button type="button" class="btn btn-default"><span class="glyphicon glyphicon-
 					edit" aria-hidden="true"></span></button>
-				</div>
-				<div class="btn-group" role="group" aria-label="...">
-					<button type="button" class="btn btn-default" ng-click="savePres()"><span
-						class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span></button>
-						<button type="button" class="btn btn-default" ng-click="newSlide()"><span
-							class="glyphicon glyphicon-plus" aria-hidden="true"></span></button>
-							<button type="button" class="btn btn-default"><span class="glyphicon glyphicon-
-								remove" aria-hidden="true"></span></button>
-							</div>
-							<div class="form-group">
-								<label for="currentPresTitle">Title</label>
-								<input type="text" ng-model="currentPresenation.title" class="form-control"
-								id="currentPresTitle">
-							</div>
-						</div>
-<!-- 						// TODO LATER-->
+			</div>
+			<div class="btn-group" role="group" aria-label="...">
+				<button type="button" class="btn btn-default" ng-click="savePres()"><span
+					class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span></button>
+				<button type="button" class="btn btn-default" ng-click="newSlide()"><span
+					class="glyphicon glyphicon-plus" aria-hidden="true"></span></button>
+				<button type="button" class="btn btn-default"><span class="glyphicon glyphicon-
+					remove" aria-hidden="true"></span></button>
+			</div>
+			<div class="form-group">
+				<label for="currentPresTitle">Title</label>
+				<input type="text" ng-model="currentPresentation.title" class="form-control"
+				id="currentPresTitle">
+			</div>
+			<div ng-repeat="slide in currentPresentation.slidArray" ng-click="selectCurrentSlid(slide)">
+				<span>{{slide.title}}</span>
+                <div ng-repeat="content in slide.contentMap | limitTo : 1">
+                    <img src="{{content.src}}"/>
+                </div>
+			</div>
+		</div>
 	</div>
+    <!-- ************* CENTER PANEL *************-->
+    <div class="col-xs-7 col-sm-7 col-md-7 col-lg-7 zeroRef fullScreenHeight" >
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 fullScreenHeight">
+            <div class="form-group" >
+                <label for="currentSlideTitle">Title</label>
+                <input type="text" ng-model="currentSlide.title" class="form-control"
+                       id="currentSlideTitle">
+                <label for="currentSlideText">Text</label>
+                <input type="text" ng-model="currentSlide.txt" class="form-control"
+                       id="currentSlideText">
+            </div>
+            <div>
+                <span ng-if="isSlidContentEmpty(currentSlide)">NO IMAGE SET</span>
+                <div ng-if="!isSlidContentEmpty(currentSlide)" ng-repeat="content in currentSlide.contentMap | limitTo : 1">
+                    <img src="{{content.src}}"/>
+                </div>
+            </div>
+        </div>
+    </div>
 <script src="lib/js/jquery-1.11.3.min.js"></script>
 <!-- ANGULAR -->
 <script src="lib/js/angular.min.js"></script>
