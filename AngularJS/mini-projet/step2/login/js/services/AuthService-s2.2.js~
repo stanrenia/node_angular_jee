@@ -1,7 +1,7 @@
 angular. module ('authService', []).service('auth',authFnc);
 authFnc.$inject=['$http','$q'];
 function authFnc($http,$q) {
-	var timeout = 3000;
+	var timeout = 500;
 	var userMap={};
 	userMap['jdoe'] = {pwd: 'jd', role: "watcher"};
 	userMap['psmith'] = {pwd: 'psmithpwd', role: "admin"};
@@ -27,7 +27,7 @@ function authFnc($http,$q) {
 
     function authAsk(login, pwd){
         var deferred = $q.defer();
-        $http.post('http://localhost:1337/fakeauth', {login:login, pwd:pwd}).
+        $http.post('http://localhost:1337/fakeauth', {login:login, pwd:pwd}, {headers: {"Content-Type": "application/json"}}).
             success(function(data, status, headers, config) {
                 var surname;
                 if(data)

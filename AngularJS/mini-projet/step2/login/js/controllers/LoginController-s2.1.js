@@ -16,7 +16,7 @@ function loginCrtFnt($scope, $log, $window, auth){
 	  auth_response.then(
 	  	function(payload){
 			$log.info("login success: "+ payload.user + " - Auth: " + payload.ValidAuth);
-	  		$window.location.replace("loginSuccess.html");
+	  		$window.location.href = "loginSuccess.html";
 	  	},
 	  	function(err_payload){
 	  		$log.warn("wrong login : " + err_payload.user + " - Auth: " + err_payload.ValidAuth);
