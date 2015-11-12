@@ -3,10 +3,13 @@
  */
 
     function test(){
-        $.post("/savePres", {
-            id: "blablacarPres",
-            slides: "[slides]"
-        }, function(data){
+        $.post("/savePres", JSON.stringify({
+            id: "steph",
+            slides: "enfant1-enfant2-slide3",
+            autre: "test-soiree-e-ouf"
+        }), function(data){
             console.log("save");
         })
     }
+    
+
