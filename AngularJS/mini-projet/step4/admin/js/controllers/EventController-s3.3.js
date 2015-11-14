@@ -9,6 +9,7 @@ function eventCrtFnt($scope, $log, $window, factory, comm){
    //CREATE an object for interactions with ng-include controller
     $scope.contentMap={payload: "", array: []};
     $scope.presentationMap={payload: ""};
+    $scope.hiddingDZ = true;
 
     var available_content=comm.loadImages('FirstPres');
        available_content.then(
@@ -58,7 +59,7 @@ function eventCrtFnt($scope, $log, $window, factory, comm){
     
     $scope.onDropComplete=function(data,evt){
         if($scope.currentSlide != undefined){
-            $scope.currentSlide.contentMap[1]=data.id;
+            $scope.currentSlide.contentMap[1]= $scope.contentMap.payload[data.id];
             //needed to inform angular that a change occurred on the current variable, this fire an event change
              $scope.$apply();
             console.log("drop success, data:", data);
@@ -78,6 +79,9 @@ function eventCrtFnt($scope, $log, $window, factory, comm){
         return false
     }    
 
+    $scope.hideDropZone = function(){
+        $scope.hiddingDZ = !$scope.hiddingDZ;
+    }
 
 
 };
