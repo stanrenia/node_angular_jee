@@ -10,6 +10,7 @@ function eventCrtFnt($scope, $log, $window, factory, comm){
     $scope.contentMap={payload: "", array: []};
     $scope.presentationMap={payload: ""};
     $scope.hiddingDZ = true;
+    $scope.socket = comm.io.socketConnection("", factory.generateUUID());
 
     var available_content=comm.loadImages('FirstPres');
        available_content.then(
@@ -19,7 +20,7 @@ function eventCrtFnt($scope, $log, $window, factory, comm){
               console.log("array content: "  +  $scope.contentMap.array);
           },
           function(errorPayload) {
-              $log.error('failure loading movie', errorPayload);
+              $log.error('failure loading content', errorPayload);
           });
     
     var firstPresentation=comm.loadPres('FirstPres');
@@ -32,7 +33,7 @@ function eventCrtFnt($scope, $log, $window, factory, comm){
               }
           },
           function(errorPayload) {
-              $log.error('failure loading movie', errorPayload);
+              $log.error('failure loading presentation', errorPayload);
           });
     
     

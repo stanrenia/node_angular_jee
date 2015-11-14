@@ -47,14 +47,14 @@
             </div>
 <!-- *************   CENTER PANEL  *************-->
             <div class="col-xs-7 col-sm-7 col-md-7 col-lg-7 zeroRef fullScreenHeight" > 
-                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12"> 
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" ng-controller="playerCtrl">
                    <div class="btn-group" role="group" aria-label="..." >
-                       <button type="button" class="btn btn-default" ><span class="glyphicon glyphicon-step-backward" aria-hidden="true"></span></button>
-                       <button type="button" class="btn btn-default" ><span class="glyphicon glyphicon-backward" aria-hidden="true"></span></button>
-                       <button type="button" class="btn btn-default" ><span class="glyphicon glyphicon-play" aria-hidden="true"></span></button>
-                       <button type="button" class="btn btn-default" ><span class="glyphicon glyphicon-pause" aria-hidden="true"></span></button>
-                       <button type="button" class="btn btn-default" ><span class="glyphicon glyphicon-forward" aria-hidden="true"></span></button>
-                       <button type="button" class="btn btn-default" ><span class="glyphicon glyphicon-step-forward" aria-hidden="true"></span></button> 
+                       <button type="button" class="btn btn-default" ng-click="changeSlide('first')"><span class="glyphicon glyphicon-step-backward" aria-hidden="true"></span></button>
+                       <button type="button" class="btn btn-default" ng-click="changeSlide('previous')"><span class="glyphicon glyphicon-backward" aria-hidden="true"></span></button>
+                       <button type="button" class="btn btn-default" ng-click="changeSlide('start')"><span class="glyphicon glyphicon-play" aria-hidden="true"></span></button>
+                       <button type="button" class="btn btn-default" ng-click="changeSlide('pause')"><span class="glyphicon glyphicon-pause" aria-hidden="true"></span></button>
+                       <button type="button" class="btn btn-default" ng-click="changeSlide('next')"><span class="glyphicon glyphicon-forward" aria-hidden="true"></span></button>
+                       <button type="button" class="btn btn-default" ng-click="changeSlide('last')"><span class="glyphicon glyphicon-step-forward" aria-hidden="true"></span></button>
                     </div>
                 </div>
                 
@@ -103,18 +103,17 @@
       
       <!-- ANGULAR -->    
   <script src="lib/js/angular.min.js"></script>
- <script src="lib/ngDraggable-master/ngDraggable.js"></script>
+  <script src="lib/ngDraggable-master/ngDraggable.js"></script>
   
   
   <script src="js/services/FactoryService-s3.1.js"></script>
-      <script src="js/services/CommService3.3.js"></script>   
-      <script src="js/application/AdminApp-s3.3.js"></script>
+  <script src="js/services/CommService3.3.js"></script>
+  <script src="js/application/AdminApp-s3.3.js"></script>
   
   <script src="js/controllers/EventController-s3.3.js"></script>
   <script src="js/controllers/PlayerController-s3.3.js"></script>
   <script src="js/controllers/DropZoneController.js"></script>
-      
-      
-<!--  <script type="text/javascript" src="/socket.io/socket.io.js"></script>-->
+  <script type="text/javascript" src="lib/js/socket.js"></script>
+
   </body>
 </html>
