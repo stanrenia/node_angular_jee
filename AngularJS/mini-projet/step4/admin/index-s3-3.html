@@ -47,14 +47,14 @@
             </div>
 <!-- *************   CENTER PANEL  *************-->
             <div class="col-xs-7 col-sm-7 col-md-7 col-lg-7 zeroRef fullScreenHeight" > 
-                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12"> 
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" ng-controller="playerCtrl">
                    <div class="btn-group" role="group" aria-label="..." >
-                       <button type="button" class="btn btn-default" ><span class="glyphicon glyphicon-step-backward" aria-hidden="true"></span></button>
-                       <button type="button" class="btn btn-default" ><span class="glyphicon glyphicon-backward" aria-hidden="true"></span></button>
-                       <button type="button" class="btn btn-default" ><span class="glyphicon glyphicon-play" aria-hidden="true"></span></button>
-                       <button type="button" class="btn btn-default" ><span class="glyphicon glyphicon-pause" aria-hidden="true"></span></button>
-                       <button type="button" class="btn btn-default" ><span class="glyphicon glyphicon-forward" aria-hidden="true"></span></button>
-                       <button type="button" class="btn btn-default" ><span class="glyphicon glyphicon-step-forward" aria-hidden="true"></span></button> 
+                       <button type="button" class="btn btn-default" ng-click="changeSlide('first')"><span class="glyphicon glyphicon-step-backward" aria-hidden="true"></span></button>
+                       <button type="button" class="btn btn-default" ng-click="changeSlide('previous')"><span class="glyphicon glyphicon-backward" aria-hidden="true"></span></button>
+                       <button type="button" class="btn btn-default" ng-click="changeSlide('start')"><span class="glyphicon glyphicon-play" aria-hidden="true"></span></button>
+                       <button type="button" class="btn btn-default" ng-click="changeSlide('pause')"><span class="glyphicon glyphicon-pause" aria-hidden="true"></span></button>
+                       <button type="button" class="btn btn-default" ng-click="changeSlide('next')"><span class="glyphicon glyphicon-forward" aria-hidden="true"></span></button>
+                       <button type="button" class="btn btn-default" ng-click="changeSlide('last')"><span class="glyphicon glyphicon-step-forward" aria-hidden="true"></span></button>
                     </div>
                 </div>
                 
@@ -66,26 +66,26 @@
                         <textarea rows="5" type="text" ng-model="currentSlide.txt"  class="form-control" id="currentSlideText"></textarea>
                     </div>  
                     <div ng-drop="true" ng-drop-success="onDropComplete($data,$event)"  style="min-height: 100px;min-width: 100px;">
-                        <img src="{{contentMap.payload[currentSlide.contentMap[1].id].src}}" alt="{{contentMap.payload[currentSlide.contentMap[1].id].title}}" class="img-responsive">
+                        <img ng-src="{{contentMap.payload[currentSlide.contentMap[1].id].src}}" alt="{{contentMap.payload[currentSlide.contentMap[1].id].title}}" class="img-responsive">
                     </div>
                 </div>
-                
             </div>
 <!-- *************   RIGHT PANEL  *************-->
             <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 divOverflow"> 
-             <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12"> 
-            <div class="input-group">
-                <input type="text" class="form-control" placeholder="Search for..." ng-model="searchContent.title">
-                <span class="input-group-btn">
-                        <button class="btn btn-default" type="button"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></button> 
-                </span>
-            </div>
-
+                 <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <div class="input-group">
+                        <input type="text" class="form-control" placeholder="Search for..." ng-model="searchContent.type">
+                        <span class="input-group-btn">
+                                <button class="btn btn-default" type="button"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></button>
+                        </span>
+                    </div>
                 </div>
-                <div id="dropZone" class="col-xs-12 col-sm-12 col-md-12 col-lg-12"> 
+                <button ng-show="hiddingDZ" type="button" class="btn btn-default" ng-click="hideDropZone()" ><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Afficher la DropZone</button>
+                <button ng-show="!hiddingDZ" type="button" class="btn btn-default" ng-click="hideDropZone()" ><span class="glyphicon glyphicon-minus" aria-hidden="true"></span> Cacher la DropZone</button>
+                <div ng-hide="hiddingDZ" id="dropZone" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
                     <div ng-include="'pages/DropZoneArea.html'"></div>
                 </div>
-                 <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 contentBlock" ng-repeat="content in contentMap.array | filter:searchContent | orderBy: 'type'" >
+                 <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 contentBlock" ng-repeat="content in contentMap.array | filter:searchContent | orderBy: 'title'" >
                     <input type="text" ng-model="content.title" class="form-control" id="currentContentTitle">
                     <div ng-drag="true" ng-drag-data="content" ng-drag-success="onDragComplete($data,$event)">
                         <img ng-src="{{content.src}}" alt="{{content.title}}" class="img-thumbnail">
@@ -103,18 +103,17 @@
       
       <!-- ANGULAR -->    
   <script src="lib/js/angular.min.js"></script>
- <script src="lib/ngDraggable-master/ngDraggable.js"></script>
+  <script src="lib/ngDraggable-master/ngDraggable.js"></script>
   
   
   <script src="js/services/FactoryService-s3.1.js"></script>
-      <script src="js/services/CommService3.3.js"></script>   
-      <script src="js/application/AdminApp-s3.3.js"></script>
+  <script src="js/services/CommService3.3.js"></script>
+  <script src="js/application/AdminApp-s3.3.js"></script>
   
   <script src="js/controllers/EventController-s3.3.js"></script>
   <script src="js/controllers/PlayerController-s3.3.js"></script>
   <script src="js/controllers/DropZoneController.js"></script>
-      
-      
-<!--  <script type="text/javascript" src="/socket.io/socket.io.js"></script>-->
+  <script type="text/javascript" src="lib/js/socket.js"></script>
+
   </body>
 </html>
