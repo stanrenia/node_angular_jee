@@ -3,11 +3,7 @@
  */
 
     function test(){
-        $.post("/savePres", JSON.stringify({
-            id: "steph",
-            slides: "enfant1-enfant2-slide3",
-            autre: "test-soiree-e-ouf"
-        }), function(data){
+        $.post("/savePres", JSON.stringify({"type":"png","id":"blablablablacar8","title":"Les arbres de decision","filename":"arb_decision.png","data":"phot1-photo2-photo3"}), function(data){
             console.log("save");
         })
     }

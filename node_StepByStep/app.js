@@ -82,66 +82,49 @@ app.use("/savePres", function(request, response){
     });
     
 });
-//var include = function(url, callback){
-//	 
-//    /* on crée une balise<script type="text/javascript"></script> */
-//    var script = document.createElement('script');
-//    script.type = 'text/javascript';
-// 
-//    /* On fait pointer la balise sur le script qu'on veut charger
-//       avec en prime un timestamp pour éviter les problèmes de cache
-//    */
-// 
-//    script.src = url + '?' + (new Date().getTime());
-// 
-//    /* On dit d'exécuter cette fonction une fois que le script est chargé */
-//    if (callback) {
-//        script.onreadystatechange = callback;
-//        script.onload = script.onreadystatechange;
-//    }
-// 
-//    /* On rajoute la balise script dans le head, ce qui démarre le téléchargement */
-//    document.getElementsByTagName('head')[0].appendChild(script);
-//}
 
-//$('app/models/slid.model.js', function() {
 var slid =new slid_class();
-//console.log("slid app.js:"+slid);
+
 slid.type = "pdf";
-//console.log("slid app.js modif type:"+slid.type);
 slid.setData("Documents de recherche");
-//console.log("slid app.js modif data:"+slid.data);
 slid.id= "heetch28";
 slid.title ="Les fourmis";
-slid.filename = slid.id+".pdf";
+slid.filename = "heetch28.pdf";
 
-slid.create(slid, function(err, data){
-	console.log("create");
-	console.log("create data:"+ data);
-});
-
-//var test=slid.read(slid.id, function(err, data){
-//	console.log("read");
-//	if(err)throw err;
-//	console.log("read data: "+ data);
+//SlidModel.create(slid, function(data){
+//	console.log("create");
+//	console.log(data);	
+//
 //});
-//console.log(test);
 
-//var slid2=slid_class();
-//slid2.type = "png";
-//slid2.setData("Texte de recherche");
-//slid2.id= "blablacar8";
-//slid2.title ="Les réseaux de neuronnes";
-//slid.filename = slid.id+".png";
 //
-//slid.update(slid2, function(err, data){
-//	console.log(slid2);
-//	console.log(data);
-//})
-//
-//slid.suppr(slid2.id, function(err, data){
-//	console.log(data);
-//})
+//var test = new slid_class();
+//console.log("test avant read:"+JSON.stringify(test));
+//SlidModel.read(slid.id, function(data){
+//	console.log("read");
+//	
+//	 test=data;
+//	 
+//	 console.log("test dans le read app:"+test);
+//});
+
+var slid2=new slid_class();
+
+slid2.type = "png";
+slid2.setData("Texte remplacé !");
+slid2.id= "heetch28";
+slid2.title ="Les réseaux de neuronnes";
+slid2.filename = "heetch28.png";
+
+slid.update(slid2, function(data){
+	console.log("slid updated: " +data);
+	console.log("slid : " +JSON.stringify(slid));
+})
+
+slid.suppr(slid2.id, function(data, err){
+	console.log(data);
+	console.log("slid supprimé !");
+})
 	
 	
 //});
