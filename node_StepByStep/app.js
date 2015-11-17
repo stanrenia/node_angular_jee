@@ -83,13 +83,13 @@ app.use("/savePres", function(request, response){
     
 });
 
-var slid =new slid_class();
+//var slid =new slid_class();
 
-slid.type = "pdf";
-slid.setData("Documents de recherche");
-slid.id= "heetch28";
-slid.title ="Les fourmis";
-slid.filename = "heetch28.pdf";
+//slid.type = "pdf";
+//slid.setData("Documents de recherche");
+//slid.id= "heetch28";
+//slid.title ="Les fourmis";
+//slid.filename = "heetch28.pdf";
 
 //SlidModel.create(slid, function(data){
 //	console.log("create");
@@ -108,23 +108,23 @@ slid.filename = "heetch28.pdf";
 //	 console.log("test dans le read app:"+test);
 //});
 
-var slid2=new slid_class();
+//var slid2=new slid_class();
 
-slid2.type = "png";
-slid2.setData("Texte remplacé !");
-slid2.id= "heetch28";
-slid2.title ="Les réseaux de neuronnes";
-slid2.filename = "heetch28.png";
+//slid2.type = "png";
+//slid2.setData("	Nouveau texte slid2");
+//slid2.id= "heetch28";
+//slid2.title ="Les réseaux de neuronnes";
+//slid2.filename = "heetch28.png";
 
-slid.update(slid2, function(data){
-	console.log("slid updated: " +data);
-	console.log("slid : " +JSON.stringify(slid));
-})
+//slid.update(slid2, function(data){
+//	console.log("slid updated: " +data);
+//	console.log("slid : " +JSON.stringify(slid));
+//})
 
-slid.suppr(slid2.id, function(data, err){
-	console.log(data);
-	console.log("slid supprimé !");
-})
-	
+//slid.suppr(slid2.id, function(data){
+//	console.log("data:"+data+"en cours de suppression ..");
+//	console.log("slid supprimé !");
+//});
+
 	
 //});

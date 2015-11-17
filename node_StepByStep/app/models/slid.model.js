@@ -121,15 +121,19 @@ module.exports = function SlidModel(smodel){
 	
 	this.suppr=function(id, callback){
 		
-		 this.read(id, function(err, data){
-			if(err) {
-	            console.log(err);
-	          } else {
-			console.log(data);
+		 this.read(id, function(data){
+	
+			console.log("datadans suppr:"+data);
+			console.log("id:"+JSON.parse(data).id);
+			callback(data);
+			fs.unlink(CONFIG.presentationDirectory + "/" + JSON.parse(data).id +".meta.json", function(data,err){
+			console.log("rmdir meta json");
+			});
+			fs.unlink(JSON.parse(data).filename,function(data, err){
+			console.log("rmdir filename");
+			});
 			
-			data.data.remove();
-			data.filename.remove();
-	          }
+	      
 		} );
 	}
 }
