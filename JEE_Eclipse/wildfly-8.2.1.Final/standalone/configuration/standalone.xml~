@@ -152,8 +152,8 @@
                     <connection-url>jdbc:mysql://localhost:3306/jee</connection-url>
                     <driver>mysqlDriver</driver>
                     <security>
-                        <user-name>root</user-name>
-                        <password>root</password>
+                        <user-name>binome01</user-name>
+                        <password>binome01</password>
                     </security>
                 </datasource>
                 <drivers>
