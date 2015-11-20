@@ -3,22 +3,24 @@
  */
 
 console.log("It Works!");
-var slid_class=require("./app/models/slid.model.js");
-var express = require("express");
-var path = require("path");
-var fs =require("fs");
-//var bodyParser = require('body-parser');
-var http = require("http");
+var SlidModel=require("./app/models/slid.model.js");
+
 var CONFIG = require("./config.json");
 var getListFile = require("./myListFile.js");
+
+var path = require("path");
+var fs =require("fs");
+var http = require("http");
+var express = require("express");
+
 process.env.CONFIG = JSON.stringify(CONFIG);
-// use var CONFIG = JSON.parse(process.env.CONFIG);
+
+//var defaultRoute = require("./app/routes/default.route.js");
+var slidRoute = require("./app/routes/slid.route.js");
+//var UserRoute = require("./app/routes/user.route.js");
+
 var app = express();
-
-var defaultRoute = require("./app/routes/default.route.js");
-
-app.use(defaultRoute);
-
+app.use(slidRoute);
 
 var server = http.createServer(app);
 server.listen(CONFIG.port);
@@ -26,6 +28,9 @@ server.listen(CONFIG.port);
 app.get("/", function(request, response){
     response.send("It works");
 });
+
+
+
 //
 //app.use(function(request, response, callback){
 //    response.send("It works 145 !");
@@ -83,45 +88,71 @@ app.use("/savePres", function(request, response){
     
 });
 
-//var slid =new slid_class();
+app.use("/slids", function(request, response){
+	var queryResponse= "";
+    request.on('data', function(data) {
+        queryResponse= queryResponse +data;
+        console.log('data' + queryResponse);
+    });
 
-//slid.type = "pdf";
-//slid.setData("Documents de recherche");
-//slid.id= "heetch28";
-//slid.title ="Les fourmis";
-//slid.filename = "heetch28.pdf";
+    request.on('end', function(){
+        console.log('end: ' + queryResponse);
+        
+        var res_json = JSON.parse(queryResponse);
+        var id_json=res_json.id;
+        
+        var slid = new SlidModel();     
+        
+        slid.type = res_json.type;
+        slid.setData(res_json.data);
+        slid.id= res_json.id;
+        slid.title = res_json.title;
+        slid.filename = res_json.filename;
 
-//SlidModel.create(slid, function(data){
+
+        SlidModel.create(slid, function(err, data){
+        	
+        if(err) console.log("Slid non crée !");
+        	
+        console.log("create slid");
+        console.log("Slid created:  "+data);	
+        
+        });
+        
+    });
+});
+
+var slid = new SlidModel();
+//
+//
+slid.type = "txt";
+slid.setData("Test static pour stan");
+slid.id= "teststatic";
+slid.title ="Les test static pour stan";
+slid.filename = "teststatic.txt";
+
+
+//SlidModel.create(slid, function(err, data){
 //	console.log("create");
 //	console.log(data);	
 //
 //});
-
 //
-//var test = new slid_class();
-//console.log("test avant read:"+JSON.stringify(test));
-//SlidModel.read(slid.id, function(data){
-//	console.log("read");
-//	
-//	 test=data;
+//SlidModel.read(slid.id, function(err, data){
+//	console.log("read\n");
 //	 
-//	 console.log("test dans le read app:"+test);
+//	 console.log("test dans le read app:"+data);
 //});
-
-//var slid2=new slid_class();
-
-//slid2.type = "png";
-//slid2.setData("	Nouveau texte slid2");
-//slid2.id= "heetch28";
-//slid2.title ="Les réseaux de neuronnes";
-//slid2.filename = "heetch28.png";
-
-//slid.update(slid2, function(data){
+//
+//slid.setData("Nouveau texte pour stan");
+//slid.title ="Les réseaux de neuronnes";
+//
+//SlidModel.update(slid, function(err, data){
 //	console.log("slid updated: " +data);
 //	console.log("slid : " +JSON.stringify(slid));
 //})
-
-//slid.suppr(slid2.id, function(data){
+//
+//SlidModel.suppr(slid.id, function(err, data){
 //	console.log("data:"+data+"en cours de suppression ..");
 //	console.log("slid supprimé !");
 //});
