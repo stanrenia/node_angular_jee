@@ -19,7 +19,7 @@ function commFnc($http,$q, factory){
     }, "b4f0d8a7-aeaa-4f9b-abae-8f3187969b09":{
         "type": "IMG_B64",
         "id": "b4f0d8a7-aeaa-4f9b-abae-8f3187969b09",
-        "title": "no title",
+        "title": "Rio",
         "fileName": "b4f0d8a7-aeaa-4f9b-abae-8f3187969b09.jpg",
         "src": "img/b4f0d8a7-aeaa-4f9b-abae-8f3187969b09.jpg"
     }};
@@ -110,6 +110,14 @@ function commFnc($http,$q, factory){
             socket.on('currentSlidEvent', function (data) {
                 if(data.slid)
                     scope.currentSlide = data.slid;
+                console.log("currentSlide ID: " + scope.currentSlide.id);
+                scope.$apply();
+                //if(data.content && data.content !== null)
+            });
+
+            socket.on('error', function (data) {
+                if(data)
+                    console.warn(data);
                 //if(data.content && data.content !== null)
             });
             return socket;

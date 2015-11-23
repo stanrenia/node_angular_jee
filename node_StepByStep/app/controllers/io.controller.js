@@ -10,6 +10,7 @@ var curSlidIndex = 0;
 var getListFile = require("../../myListFile.js");
 var path = require("path");
 var SlidModel = require("../models/slid.model.js");
+var CONFIG = JSON.parse(process.env.CONFIG);
 
 exports.listen = function(server){
 
@@ -21,7 +22,11 @@ exports.listen = function(server){
     // Handling IO events
     io.on("connection", function (socket) {
         socket.emit("connection");
-
+        socket.on('error', function (data) {
+            console.warn("** Error event ** :");
+            if(data)
+                console.warn(data);
+        });
         socket.on("data_comm", function(id){
             socketMap[id] = socket;
         });
@@ -37,31 +42,47 @@ exports.listen = function(server){
                 return;
             }
             else if(cmd.CMD == cmdList.START && cmd.PRES_ID != undefined){ // Change Presentation if START + PRES_ID different than curPres.id
-                var err = changePres(cmd.PRES_ID);
-                if(!err){
-                    console.log("Pres Event: " + JSON.stringify(curPres));
-                    socket.emit("newPres", curPres);
-                    socket.broadcast.emit("newPres", curPres);
-                }
+                changePres(cmd.PRES_ID, function(err){
+                    if(err){
+                        socket.emit("error", err);
+                    }
+                    else{
+                        console.log("Pres Event: " + JSON.stringify(curPres));
+                        socket.emit("newPres", curPres);
+                        socket.broadcast.emit("newPres", curPres);
+                        getSlidFromCommand(cmd.CMD, function(err, dataToSend){
+                            if(err){
+                                socket.emit("error", err);
+                            }
+                            else{
+                                console.log("dataToSend: " + JSON.stringify(dataToSend));
+                                socket.emit("currentSlidEvent", dataToSend);
+                                socket.broadcast.emit("currentSlidEvent", dataToSend);
+                            }
+                        });
+                    }
+                });
             }
 
-            var dataToSend = getSlidFromCommand(cmd.CMD);
-            if(dataToSend === null){
-                socket.emit("error", "Start Presentation or check given parameters");
-                return;
+            if(curPres !== null)
+            {
+                getSlidFromCommand(cmd.CMD, function(err, dataToSend){
+                    if(err){
+                        socket.emit("error", err);
+                    }
+                    else{
+                        console.log("dataToSend: " + JSON.stringify(dataToSend));
+                        socket.emit("currentSlidEvent", dataToSend);
+                        socket.broadcast.emit("currentSlidEvent", dataToSend);
+                    }
+                });
             }
-            console.log("dataToSend: " + JSON.stringify(dataToSend));
-            socket.emit("currentSlidEvent", dataToSend);
-            socket.broadcast.emit("currentSlidEvent", dataToSend);
         });
     });
 
     // sub functions
-    function getSlidFromCommand(cmd){
-        // check arg
-        if(curPres === null){
-            return null;
-        }
+    function getSlidFromCommand(cmd, callback){
+        console.log("getSlidFromCmd: " + cmd);
 
         switch (cmd){
             case cmdList.START:
@@ -77,48 +98,54 @@ exports.listen = function(server){
                 curSlidIndex = curPres.slidArray.length-1;
                 break;
             case cmdList.NEXT:
-                if(curSlidIndex < curPres.slidArray.length)
+                if(curSlidIndex < curPres.slidArray.length-1)
                     curSlidIndex++;
                 break;
             case cmdList.PREV:
                 if(curSlidIndex > 0)
                     curSlidIndex--;
                 break;
-            default: return null;
+            default: console.warn("In default (switch)"); return callback("error command does not match");
         }
 
+        console.log("Index: " + curSlidIndex);
         var nextSlid = curPres.slidArray[curSlidIndex]; //TODO check obj type
+        console.log("nextSlid: " + nextSlid.id);
         var content = null;
         if(nextSlid.contentMap[1] != undefined){
-            console.log("IN FUNCTION: ");
             SlidModel.read(nextSlid.contentMap[1], function(err, data){
-                if(!err){
+                if(err){
+                    return callback(err);
+                }
+                else{
                     content = data;
                     content.src = "/img/" + content.filename;
+                    return callback(null, {slid: nextSlid, content: content});
                 }
-                return {slid: nextSlid, content: content};
             });
         }
-        console.log("NOT IN FUNCTION: ");
-        return {slid: nextSlid, content: null};
+        else return callback(null, {slid: nextSlid, content: null});
     }
 
-    function changePres(pres_id){
-        getListFile(CONFIG.presentationDirectory, "json", function(err, files) {
+    function changePres(pres_id, callback){
+        var presPath = path.resolve(path.dirname(require.main.filename), CONFIG.presentationDirectory);
+        console.log("presPath: " + presPath);
+        getListFile(presPath, "json", function(err, files) {
             if(err){
-                return 1;
+                return callback("Error in getListFile called by changePres:" + err);
             }
             else{
                 files.forEach(function(file){
-                    var jfile_path = path.join(CONFIG.presentationDirectory, file);
+                    var jfile_path = path.join(presPath, file);
                     var jfile = require(jfile_path);
                     if (pres_id == jfile.id){
                         curPres = jfile;
-                        return 0;
+                        return callback(null);
                     }
+                    if(file === files[files.length-1])
+                        return callback("presentation id not found");
                 });
-                return 2;
             }
-        })
+        });
     }
 };

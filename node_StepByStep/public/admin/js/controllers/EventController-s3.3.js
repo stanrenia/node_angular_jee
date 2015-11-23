@@ -64,11 +64,11 @@ function eventCrtFnt($scope, $log, $window, factory, comm){
     }
     
     
-    $scope.onDropComplete=function(data,evt){
+    $scope.onDropComplete=function(data, evt){
         if($scope.currentSlide != undefined){
-            $scope.currentSlide.contentMap[1]= $scope.contentMap.payload[data.id];
+            $scope.currentSlide.contentMap[1]= data.id;
             //needed to inform angular that a change occurred on the current variable, this fire an event change
-             $scope.$apply();
+            //$scope.$apply();
             console.log("drop success, data:", data);
             }
     }
