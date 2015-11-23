@@ -1,8 +1,14 @@
-/**
- * Created by stan_ on 04/11/2015.
- */
-
-var express = require("express");
-var router = express.Router();
-module.exports = router;
-
+// default.route.js
+//var express = require("express");
+//var router = express.Router();
+//module.exports = router;
+// Routing using
+/*
+router.route(__PATH__)
+.get()
+.post()
+.put()
+.delete()
+.all()
+.[...]
+*/
