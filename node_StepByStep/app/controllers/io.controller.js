@@ -12,7 +12,7 @@ var getListFile = require("../../myListFile.js");
 var path = require("path");
 var SlidModel = require("../models/slid.model.js");
 var CONFIG = JSON.parse(process.env.CONFIG);
-var autoPlay;
+var autoPlay = null;
 
 exports.listen = function(server){
 
@@ -67,6 +67,8 @@ exports.listen = function(server){
                             }
                             else{
                                 // Start auto-play
+                                if(autoPlay != null)
+                                    clearInterval(autoPlay);
                                 autoPlay = setInterval(function(){
                                     autoPlayFct(socket);
                                 }, playerDelay);
@@ -101,7 +103,9 @@ exports.listen = function(server){
                         // Notify admin + watchers
                         console.log("dataToSend: " + JSON.stringify(dataToSend));
                         socket.emit("currentSlidEvent", dataToSend);
-                        socket.broadcast.emit("currentSlidEvent", dataToSend);
+                        if(dataToSend.slid != 0){
+                            socket.broadcast.emit("currentSlidEvent", dataToSend);
+                        }
                     }
                 });
             }
@@ -120,7 +124,9 @@ exports.listen = function(server){
                     }
                     else{
                         socket.emit("currentSlidEvent", dataToSend);
-                        socket.broadcast.emit("currentSlidEvent", dataToSend);
+                        if(dataToSend.slid != 0){
+                            socket.broadcast.emit("currentSlidEvent", dataToSend);
+                        }
                     }
                 })
             }
@@ -132,7 +138,7 @@ exports.listen = function(server){
     function getSlidFromCommand(cmd, callback){
         // Get slid depending on the given command
         console.log("getSlidFromCmd: " + cmd);
-
+        var backidx = curSlidIndex;
         switch (cmd){
             case cmdList.START:
                 playerState = stateList.PLAYING;
@@ -157,7 +163,10 @@ exports.listen = function(server){
             default: console.warn("In default (switch)"); return callback("error command does not match");
         }
 
-        console.log("Index: " + curSlidIndex);
+        if(backidx == curSlidIndex){
+            return callback(null, {slid: 0, content: null});
+        }
+
         var nextSlid = curPres.slidArray[curSlidIndex]; //TODO check obj type
         console.log("nextSlid: " + nextSlid.id);
         var content = null;
@@ -168,7 +177,7 @@ exports.listen = function(server){
                 }
                 else{
                     content = data;
-                    content.src = "/uploads/" + content.filename;
+                    content.src = CONFIG.contentDirectory.slice(1)+ "/" + content.filename;
                     return callback(null, {slid: nextSlid, content: content});
                 }
             });

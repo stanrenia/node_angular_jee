@@ -12,7 +12,6 @@ var path = require("path");
 var fs =require("fs");
 var http = require("http");
 var express = require("express");
-
 process.env.CONFIG = JSON.stringify(CONFIG);
 
 //var defaultRoute = require("./app/routes/default.route.js");
@@ -88,7 +87,7 @@ app.use("/savePres", function(request, response){
     });
 });
 
-app.use("/slids", function(request, response){
+/*app.use("/slids", function(request, response){
 	var queryResponse= "";
     request.on('data', function(data) {
         queryResponse= queryResponse +data;
@@ -120,7 +119,7 @@ app.use("/slids", function(request, response){
         }
         });
     });
-});
+});*/
 
 /*var slid = new SlidModel();
 //
