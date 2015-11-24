@@ -3,6 +3,7 @@
  */
 var stateList = {"PAUSING": 0, "PLAYING": 1};
 var playerState = stateList.PAUSING;
+var playerDelay = 3000;
 var cmdList = {START: "START", PAUSE: "PAUSE", NEXT: "NEXT", PREV: "PREV", BEGIN: "BEGIN", END: "END"};
 var socketMap = {};
 var curPres = null;
@@ -11,6 +12,7 @@ var getListFile = require("../../myListFile.js");
 var path = require("path");
 var SlidModel = require("../models/slid.model.js");
 var CONFIG = JSON.parse(process.env.CONFIG);
+var autoPlay;
 
 exports.listen = function(server){
 
@@ -21,41 +23,55 @@ exports.listen = function(server){
 
     // Handling IO events
     io.on("connection", function (socket) {
+        // First thing is notify the client in order to get his ID from 'data_comm' event
         socket.emit("connection");
+        socket.on("data_comm", function(id){
+            socketMap[id] = socket;
+        });
+        // Handling server internal errors
         socket.on('error', function (data) {
             console.warn("** Error event ** :");
             if(data)
                 console.warn(data);
         });
-        socket.on("data_comm", function(id){
-            socketMap[id] = socket;
-        });
 
+        // Receving commands from Admin
         socket.on("slidEvent", function (cmd) {
             console.log("slidEvent: " + JSON.stringify(cmd));
+            // Handling BAD requests
             if(cmd.CMD == undefined){
-                socket.emit("error", "Wrong given parameters");
+                console.warn("errorClient: Wrong given parameters");
+                socket.emit("errorClient", "Wrong given parameters");
                 return;
             }
             if(cmd.CMD == cmdList.START && cmd.PRES_ID == undefined){
-                socket.emit("error", "Missing a parameter");
+                console.warn("errorClient: Missing a parameter");
+                socket.emit("errorClient", "Missing a parameter");
                 return;
             }
-            else if(cmd.CMD == cmdList.START && cmd.PRES_ID != undefined){ // Change Presentation if START + PRES_ID different than curPres.id
+            else if(cmd.CMD == cmdList.START && cmd.PRES_ID != undefined){
+                // Change Presentation if START + PRES_ID different than curPres.id
                 changePres(cmd.PRES_ID, function(err){
                     if(err){
                         socket.emit("error", err);
                     }
                     else{
                         console.log("Pres Event: " + JSON.stringify(curPres));
+                        // Notify admin + watchers about the new presentation
                         socket.emit("newPres", curPres);
                         socket.broadcast.emit("newPres", curPres);
+                        // Get the first slide of this new presentation and notify clients
                         getSlidFromCommand(cmd.CMD, function(err, dataToSend){
                             if(err){
                                 socket.emit("error", err);
                             }
                             else{
+                                // Start auto-play
+                                autoPlay = setInterval(function(){
+                                    autoPlayFct(socket);
+                                }, playerDelay);
                                 console.log("dataToSend: " + JSON.stringify(dataToSend));
+                                // Notify admin + watchers
                                 socket.emit("currentSlidEvent", dataToSend);
                                 socket.broadcast.emit("currentSlidEvent", dataToSend);
                             }
@@ -65,23 +81,56 @@ exports.listen = function(server){
             }
 
             if(curPres !== null)
-            {
+            {   // Others command than START
                 getSlidFromCommand(cmd.CMD, function(err, dataToSend){
                     if(err){
                         socket.emit("error", err);
                     }
                     else{
+                        if(playerState == stateList.PAUSING && autoPlay !== undefined){
+                            // Cancel the auto-play
+                            clearInterval(autoPlay);
+                        }
+                        else if(playerState == stateList.PLAYING && autoPlay !== undefined){
+                            // Reset auto-play interval time (if we manually change a slide, the countdown is reset before it changes again)
+                            clearInterval(autoPlay);
+                            autoPlay = setInterval(function(){
+                                autoPlayFct(socket);
+                            }, playerDelay);
+                        }
+                        // Notify admin + watchers
                         console.log("dataToSend: " + JSON.stringify(dataToSend));
                         socket.emit("currentSlidEvent", dataToSend);
                         socket.broadcast.emit("currentSlidEvent", dataToSend);
                     }
                 });
             }
+            else{
+                console.warn("errorClient: Start presentation first");
+                socket.emit("errorClient", "Start presentation first");
+            }
         });
+
+        function autoPlayFct(socket){
+            // Get the next slide and notify clients
+            if(playerState == stateList.PLAYING && curPres !== null){
+                getSlidFromCommand(cmdList.NEXT, function(err, dataToSend){
+                    if(err){
+                        socket.emit("error", err);
+                    }
+                    else{
+                        socket.emit("currentSlidEvent", dataToSend);
+                        socket.broadcast.emit("currentSlidEvent", dataToSend);
+                    }
+                })
+            }
+        }
     });
 
     // sub functions
+
     function getSlidFromCommand(cmd, callback){
+        // Get slid depending on the given command
         console.log("getSlidFromCmd: " + cmd);
 
         switch (cmd){
@@ -119,7 +168,7 @@ exports.listen = function(server){
                 }
                 else{
                     content = data;
-                    content.src = "/img/" + content.filename;
+                    content.src = "/uploads/" + content.filename;
                     return callback(null, {slid: nextSlid, content: content});
                 }
             });
@@ -128,6 +177,7 @@ exports.listen = function(server){
     }
 
     function changePres(pres_id, callback){
+        // Reads presentation files located in /presentation_content and get the corresponding presentation
         var presPath = path.resolve(path.dirname(require.main.filename), CONFIG.presentationDirectory);
         console.log("presPath: " + presPath);
         getListFile(presPath, "json", function(err, files) {

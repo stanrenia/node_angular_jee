@@ -33,9 +33,8 @@ function commFnc($http,$q, factory){
 
     var comm = {
          loadImages:       loadImages,
-         loadPres:          loadPres,
-         savePres:      savePres
-     };
+         loadPres:          loadPres
+    };
 
     function loadImages(){
         var deferred = $q.defer();
@@ -93,11 +92,6 @@ function commFnc($http,$q, factory){
         return deferred.promise;
     }
 
-
-    function savePres(){
-        //TODO
-    }
-
     if(io != undefined){
         comm.io = {};
         comm.io.socketConnection=function(scope,uuid){
@@ -128,24 +122,6 @@ function commFnc($http,$q, factory){
                 //if(data.content && data.content !== null)
             });
             return socket;
-        }
-        comm.io.emitPrev=function(socket){
-            socket.emit('slidEvent', {'CMD':"PREV"});
-        }
-        comm.io.emitNext=function(socket){
-            socket.emit('slidEvent', {'CMD':"NEXT"});
-        }
-        comm.io.emitStart=function(socket,presUUID){
-            socket.emit('slidEvent', {'CMD':"START",'PRES_ID':presUUID});
-        }
-        comm.io.emitPause=function(socket){
-            socket.emit('slidEvent', {'CMD':"PAUSE"});
-        }
-        comm.io.emitBegin=function(socket){
-            socket.emit('slidEvent', {'CMD':"BEGIN"});
-        }
-        comm.io.emitEnd=function(socket){
-            socket.emit('slidEvent', {'CMD':"END"});
         }
     }
     else console.warn("io is undefined");

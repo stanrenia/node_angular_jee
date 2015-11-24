@@ -38,6 +38,7 @@ app.get("/", function(request, response){
 //});
 var __dirname = "./";
 app.use("/test", express.static(__dirname));
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use("/watch", express.static(path.join(__dirname, "public/watch")));
 app.use("/admin", express.static(path.join(__dirname, "public/admin")));
 
