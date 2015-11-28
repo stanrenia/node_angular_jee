@@ -30,10 +30,10 @@ function commFnc($http,$q, factory){
         return deferred.promise;
     }
 
-    function loadPres(){
+    function loadPres(presID){
         var deferred = $q.defer();
         // FOR LOCAL TEST
-        $http.get("/loadPres")
+        $http.get("/loadPres", {params: {"presid": presID}})
             .success(function(data){
                 if(data)
                     deferred.resolve(data);
@@ -46,8 +46,20 @@ function commFnc($http,$q, factory){
         return deferred.promise;
     }
 
-    function savePres(){
-        //TODO
+    function savePres(pres){
+        var deferred = $q.defer();
+        // FOR LOCAL TEST
+        $http.post("/savePres", JSON.stringify(pres))
+            .success(function(data){
+                if(data)
+                    deferred.resolve(data);
+                else
+                    deferred.reject();
+            })
+            .error(function(data){
+                deferred.reject();
+            });
+        return deferred.promise;
     }
 
     if(io != undefined){

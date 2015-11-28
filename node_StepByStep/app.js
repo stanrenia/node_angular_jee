@@ -42,6 +42,8 @@ app.use("/watch", express.static(path.join(__dirname, "public/watch")));
 app.use("/admin", express.static(path.join(__dirname, "public/admin")));
 
 app.use("/loadPres", function(request, response){
+    var presID = request.query.presid;
+    //console.log("(get) PresID: "  + presID);
     getListFile(CONFIG.presentationDirectory, "json", function(err, files) {
         if(err){
             console.error(err);
@@ -49,39 +51,72 @@ app.use("/loadPres", function(request, response){
         }
         else{
             var LoadPres = {};
-            files.forEach(function(file){
-                var jfile_path = path.join(CONFIG.presentationDirectory, file);
-                jfile_path = CONFIG.presentationDirectory + "/" + file;
-                //console.log("jpath file: " +jfile_path);
-                var jfile = require(jfile_path);
-                LoadPres[jfile.id] = jfile;
+            var i= 0, len=files.length;
+            if(presID !== undefined) {
+                var curpres;
+                for(i=0; i<len;i++){
+                    var curfileID = files[i].substr(0, CONFIG.presentationExtension.length);
+                    if(curfileID == presID){
+                        curfileID = files[i];
+                        break;
+                    }
+                }
+                var jfile_path = path.join(CONFIG.presentationDirectory, curpres);
+                fs.readFile(jfile_path, function(err, data){
+                    if(err){
+                        return response.status(500).send("Server can not get the given presentation");
+                    }
+                    else{
+                        data = JSON.parse(data.toString());
+                        LoadPres[data.id] = data;
+                        return response.send(LoadPres);
+                    }
                 });
-            //console.log("LoadPres: " + LoadPres);
-            //console.log("stringify: " +JSON.stringify(LoadPres));
-            response.send(LoadPres);
+            }
+            else{
+                files.forEach(function(file){
+                    var jfile_path = path.join(CONFIG.presentationDirectory, file);
+                    fs.readFile(jfile_path, function(err, data){
+                        if(err){
+                            return response.status(500).send("Server can not get the given presentation");
+                        }
+                        else{
+                            data = JSON.parse(data.toString());
+                            LoadPres[data.id] = data;
+                            console.log("i: " + i + " len: " + len);
+                            if(i == len-1){
+                                console.log("MyLOOAD: " +JSON.stringify(data));
+                                return response.send(LoadPres);
+                            }
+                            i++;
+                        }
+                    });
+                });
+            }
         }
     })
 });
 
-app.use("/savePres", function(request, response){
+app.post("/savePres", function(request, response){
     var queryResponse= "";
     request.on('data', function(data) {
         queryResponse= queryResponse +data;
-        console.log('data' + queryResponse);
+        //console.log('data' + queryResponse);
     });
 
     request.on('end', function(){
-        console.log('end: ' + queryResponse);
+        //console.log('end: ' + queryResponse);
         
         var res_json = JSON.parse(queryResponse);
         var id_json=res_json.id;
         
-        json_path = CONFIG.presentationDirectory + "/" +id_json +".pres.json";
+        var json_path = CONFIG.presentationDirectory + "/" +id_json +".pres.json";
         fs.writeFile(json_path, JSON.stringify(res_json), function(err) {
             if(err) {
               console.log(err);
+                response.status(500).send("Error occured while saving the presentation");
             } else {
-              console.log("JSON saved to " + json_path);
+              response.send("OK");
             }
         });
     });

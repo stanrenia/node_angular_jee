@@ -27,13 +27,12 @@
                         <button type="button" class="btn btn-default" ng-click="newSlide()"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
                         </button>
                         <button type="button" class="btn btn-default"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>
-                        
                     </div>
                     <div class="form-group">
-                      <label for="currentPresTitle">Title</label>
+                        <div><select ng-options="pres as pres.title for pres in presentationMap.array track by pres.id" ng-model="currentPresentation"></select></div>
+                        <label for="currentPresTitle">Title</label>
                         <input type="text" ng-model="currentPresentation.title" class="form-control" id="currentPresTitle">
                     </div>
-
                 </div>
                  <div ng-repeat="slid in currentPresentation.slidArray" class="col-xs-12 col-sm-12 col-md-12 col-lg-12" ng-click="selectCurrentSlid(slid)">
                      <h3>{{slid.title}}</h3>                     
@@ -67,7 +66,8 @@
                         <textarea rows="5" type="text" ng-model="currentSlide.txt"  class="form-control" id="currentSlideText"></textarea>
                     </div>
                     <div ng-drop="true" ng-drop-success="onDropComplete($data,$event)"  style="min-height: 100px;min-width: 100px;">
-                        <img ng-src="{{contentMap.payload[currentSlide.contentMap[1]].src}}" alt="{{contentMap.payload[currentSlide.contentMap[1]].title}}" class="img-responsive">
+                        <span ng-if="isSlidContentEmpty(currentSlide)">NO IMAGE IS SET</span>
+                        <img ng-hide="isSlidContentEmpty(currentSlide)" ng-src="{{contentMap.payload[currentSlide.contentMap[1]].src}}" alt="{{contentMap.payload[currentSlide.contentMap[1]].title}}" class="img-responsive">
                     </div>
                 </div>
             </div>

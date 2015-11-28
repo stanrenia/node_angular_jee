@@ -4,16 +4,16 @@ eventCrtFnt.$inject=['$scope','$log','$window','factory','comm'];
 
 function eventCrtFnt($scope, $log, $window, factory, comm){
 
-    $scope.currentPresentation=factory.presentationCreation("template_pres","description of the template présentation");
+    //$scope.currentPresentation=factory.presentationCreation("template_pres","description of the template présentation");
     
    //CREATE an object for interactions with ng-include controller
     $scope.contentMap={payload: "", array: []};
-    $scope.presentationMap={};
+    $scope.presentationMap={payload: "", array: []};
     //$scope.presentationMap={payload: ""};
     $scope.hiddingDZ = true;
     $scope.socket = comm.io.socketConnection($scope, factory.generateUUID());
 
-    var available_content=comm.loadImages('FirstPres');
+    var available_content=comm.loadImages();
        available_content.then(
           function(payload) { 
               $scope.contentMap.payload = payload;
@@ -27,9 +27,10 @@ function eventCrtFnt($scope, $log, $window, factory, comm){
     var firstPresentation=comm.loadPres();
        firstPresentation.then(
           function(payload) {
-              $scope.presentationMap = payload;
-              for(var key in $scope.presentationMap){
-                  $scope.currentPresentation = $scope.presentationMap[key];
+              $scope.presentationMap.payload = payload;
+              $scope.presentationMap.array = factory.mapToArray(payload);
+              for(var key in $scope.presentationMap.payload){
+                  $scope.currentPresentation = $scope.presentationMap.payload[key];
                   $scope.currentSlide = $scope.currentPresentation.slidArray[0];
                   break;
               }
@@ -50,7 +51,16 @@ function eventCrtFnt($scope, $log, $window, factory, comm){
     }
     
     $scope.savePres=function(){
-        comm.savePres($scope.currentPresentation);
+        var savingPres = comm.savePres($scope.currentPresentation);
+        savingPres.then(
+            function () {
+                $scope.presentationMap.payload[$scope.currentPresentation.id] = $scope.currentPresentation;
+                $scope.presentationMap.array = factory.mapToArray($scope.presentationMap.payload);
+            },
+            function(){
+                console.warn("SERVER COULD NOT SAVE THE PRESENTATION");
+            }
+        );
     }
     
     $scope.selectCurrentSlid=function(slide){
@@ -80,15 +90,11 @@ function eventCrtFnt($scope, $log, $window, factory, comm){
     }
     
     $scope.isSlidContentEmpty=function(slid){
-        if(slid.contentMap[1]== undefined){
-            return true;
-        }
-        return false
+        if(slid == undefined) return false;
+        return slid.contentMap[1]== undefined;
     }    
 
     $scope.hideDropZone = function(){
         $scope.hiddingDZ = !$scope.hiddingDZ;
     }
-
-
 };

@@ -1,5 +1,6 @@
 {
   "port": 1337,
   "contentDirectory": "./uploads",
-  "presentationDirectory": "./presentation_content"
+  "presentationDirectory": "./presentation_content",
+  "presentationExtension": ".pres.json"
 }

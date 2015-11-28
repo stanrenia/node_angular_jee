@@ -5,7 +5,7 @@ var path = require("path");
 
 function list(callback){
     var dirpath = path.resolve(path.dirname(require.main.filename), CONFIG.contentDirectory);
-    console.log("dirpath:" + dirpath);
+    //console.log("dirpath:" + dirpath);
 	getListFile(dirpath, "json", function(err, files) {
         if(err){
             console.error("Error in list(): " + err);
@@ -13,22 +13,28 @@ function list(callback){
         }
         else{
             var list_slid = {};
-            for(var i= 0, len=files.length; i< len; i++){
-                var jfile_path = path.join(dirpath, files[i]);
-                //console.log("jpath file: " +jfile_path);
-                var jfile = require(jfile_path);
-                for(var key in jfile){
-                    console.log("key: " + key +" : " + jfile[key]);
-                }
-                // slice to remove the '.' from './uploads'
-                // concat with '/' because it will be written in HTML
-                jfile.src = CONFIG.contentDirectory.slice(1) +"/"+ jfile.fileName;
-                list_slid[jfile.id] = jfile;
-            }
-            if(i == 0){
-                return callback("Error: List of contents is empty");
-            }
-            return callback(null, list_slid);
+            var i= 0, len = files.length;
+            files.forEach(function(file){
+                 var jfile_path = path.join(dirpath, file);
+                 var jfile = require(jfile_path);
+                 SlidModel.read(jfile.id, function(err, slid){
+                     if(err){
+                         return callback("Error reading content: " + err);
+                     }
+                     else{
+                         slid = JSON.parse(slid);
+                         // slice to remove the '.' from './uploads'
+                         // concat with '/' because it will be written in HTML
+                         slid.src = CONFIG.contentDirectory.slice(1) +"/"+ slid.filename;
+                         list_slid[slid.id] = slid;
+                         if(i == len-1){
+                             //console.log("LIST: " + JSON.stringify(list_slid));
+                             return callback(null, list_slid);
+                         }
+                         i++;
+                     }
+                 });
+            });
         }
 	});
 }

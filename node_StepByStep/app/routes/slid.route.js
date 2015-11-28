@@ -20,7 +20,7 @@ router.get("/slids", function(request, response){
 			response.status(400).send("List of contents not available. Cause: " + err);
 		}
 		else{
-			console.log("List slid: " + listSlid); //  The full path to the uploaded file
+			//console.log("List slid: " + listSlid); //  The full path to the uploaded file
 			response.json(listSlid);
 		}
 	});

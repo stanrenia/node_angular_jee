@@ -77,7 +77,7 @@ SlidModel.read=function(id, callback){
 		  //utils.js
 		  if (err) return callback(err);
 		  
-		  console.log("dans le read:"+data);
+		  //console.log("dans le read:"+data);
 		  data=data.toString();
 		  data_json=JSON.parse(data);
 		  var slid_ret = new SlidModel(data_json);
