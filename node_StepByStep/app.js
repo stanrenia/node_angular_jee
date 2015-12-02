@@ -4,9 +4,9 @@
 
 console.log("It Works!");
 var SlidModel=require("./app/models/slid.model.js");
+var PresModel=require("./app/models/pres.model.js");
 
 var CONFIG = require("./config.json");
-var getListFile = require("./myListFile.js");
 
 var path = require("path");
 var fs =require("fs");
@@ -44,57 +44,26 @@ app.use("/admin", express.static(path.join(__dirname, "public/admin")));
 app.use("/loadPres", function(request, response){
     var presID = request.query.presid;
     //console.log("(get) PresID: "  + presID);
-    getListFile(CONFIG.presentationDirectory, "json", function(err, files) {
-        if(err){
-            console.error(err);
-            response.status(500).send("Server can not get presentations");
-        }
-        else{
-            var LoadPres = {};
-            var i= 0, len=files.length;
-            if(presID !== undefined) {
-                var curpres;
-                for(i=0; i<len;i++){
-                    var curfileID = files[i].substr(0, CONFIG.presentationExtension.length);
-                    if(curfileID == presID){
-                        curfileID = files[i];
-                        break;
-                    }
-                }
-                var jfile_path = path.join(CONFIG.presentationDirectory, curpres);
-                fs.readFile(jfile_path, function(err, data){
-                    if(err){
-                        return response.status(500).send("Server can not get the given presentation");
-                    }
-                    else{
-                        data = JSON.parse(data.toString());
-                        LoadPres[data.id] = data;
-                        return response.send(LoadPres);
-                    }
-                });
+    if(presID !== undefined){
+        PresModel.read(presID, function(err, presData){
+            if(err){
+                return response.status(500).send("Server can not get the given presentation");
             }
             else{
-                files.forEach(function(file){
-                    var jfile_path = path.join(CONFIG.presentationDirectory, file);
-                    fs.readFile(jfile_path, function(err, data){
-                        if(err){
-                            return response.status(500).send("Server can not get the given presentation");
-                        }
-                        else{
-                            data = JSON.parse(data.toString());
-                            LoadPres[data.id] = data;
-                            console.log("i: " + i + " len: " + len);
-                            if(i == len-1){
-                                console.log("MyLOOAD: " +JSON.stringify(data));
-                                return response.send(LoadPres);
-                            }
-                            i++;
-                        }
-                    });
-                });
+                return response.send(presData);
             }
-        }
-    })
+        });
+    }
+    else{
+        PresModel.getAll(function(err, presData){
+            if(err){
+                return response.status(500).send("Server can not get presentations");
+            }
+            else{
+                return response.send(presData);
+            }
+        })
+    }
 });
 
 app.post("/savePres", function(request, response){

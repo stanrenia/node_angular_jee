@@ -11,6 +11,7 @@ var curSlidIndex = 0;
 var getListFile = require("../../myListFile.js");
 var path = require("path");
 var SlidModel = require("../models/slid.model.js");
+var PresModel=require("../models/pres.model.js");
 var CONFIG = JSON.parse(process.env.CONFIG);
 var autoPlay = null;
 
@@ -51,33 +52,30 @@ exports.listen = function(server){
             }
             else if(cmd.CMD == cmdList.START && cmd.PRES_ID != undefined){
                 // Change Presentation if START + PRES_ID different than curPres.id
-                changePres(cmd.PRES_ID, function(err){
+                changePres(cmd.PRES_ID, function(err, isSamePres){
                     if(err){
-                        socket.emit("error", err);
+                        socket.emit("error", "The given Presentation ID does not match. " + err);
                     }
                     else{
                         console.log("Pres Event: " + JSON.stringify(curPres));
                         // Notify admin + watchers about the new presentation
                         socket.emit("newPres", curPres);
                         socket.broadcast.emit("newPres", curPres);
+
+                        //resetPlay(socket);
+                        if(autoPlay !== null)
+                            clearInterval(autoPlay);
+                        autoPlay = setInterval(function(){
+                            autoPlayFct(socket);
+                        }, playerDelay);
+
                         // Get the first slide of this new presentation and notify clients
-                        getSlidFromCommand(cmd.CMD, function(err, dataToSend){
-                            if(err){
-                                socket.emit("error", err);
-                            }
-                            else{
-                                // Start auto-play
-                                if(autoPlay != null)
-                                    clearInterval(autoPlay);
-                                autoPlay = setInterval(function(){
-                                    autoPlayFct(socket);
-                                }, playerDelay);
-                                console.log("dataToSend: " + JSON.stringify(dataToSend));
-                                // Notify admin + watchers
-                                socket.emit("currentSlidEvent", dataToSend);
-                                socket.broadcast.emit("currentSlidEvent", dataToSend);
-                            }
-                        });
+
+                        var nextSlid = curPres.slidArray[0];
+                        var dataToSend = {slid: nextSlid, content: null};
+                        // Notify admin + watchers
+                        socket.emit("currentSlidEvent", dataToSend);
+                        socket.broadcast.emit("currentSlidEvent", dataToSend);
                     }
                 });
             }
@@ -90,12 +88,14 @@ exports.listen = function(server){
                     }
                     else{
                         if(playerState == stateList.PAUSING && autoPlay !== undefined){
-                            // Cancel the auto-play
+                            // Stop the auto-play
                             clearInterval(autoPlay);
                         }
                         else if(playerState == stateList.PLAYING && autoPlay !== undefined){
                             // Reset auto-play interval time (if we manually change a slide, the countdown is reset before it changes again)
-                            clearInterval(autoPlay);
+                            //resetPlay(socket);
+                            if(autoPlay !== null)
+                                clearInterval(autoPlay);
                             autoPlay = setInterval(function(){
                                 autoPlayFct(socket);
                             }, playerDelay);
@@ -110,10 +110,19 @@ exports.listen = function(server){
                 });
             }
             else{
-                console.warn("errorClient: Start presentation first");
-                socket.emit("errorClient", "Start presentation first");
+                if(cmd.CMD != cmdList.START){
+                    console.warn("errorClient: Start presentation first");
+                    socket.emit("errorClient", "Start presentation first");
+                }
             }
         });
+
+        function resetPlay(socket){
+            clearInterval(autoPlay);
+            autoPlay = setInterval(function(){
+                autoPlayFct(socket);
+            }, playerDelay);
+        }
 
         function autoPlayFct(socket){
             // Get the next slide and notify clients
@@ -186,8 +195,22 @@ exports.listen = function(server){
     }
 
     function changePres(pres_id, callback){
+        if(curPres){
+            if(curPres.id === pres_id){
+                return callback(null, true);
+            }
+        }
         // Reads presentation files located in /presentation_content and get the corresponding presentation
-        var presPath = path.resolve(path.dirname(require.main.filename), CONFIG.presentationDirectory);
+        PresModel.read(pres_id, function(err, data){
+            if(err){
+                return callback(err);
+            }
+            else{
+                curPres = data;
+                return callback(null, false);
+            }
+        })
+        /*var presPath = path.resolve(path.dirname(require.main.filename), CONFIG.presentationDirectory);
         console.log("presPath: " + presPath);
         getListFile(presPath, "json", function(err, files) {
             if(err){
@@ -205,6 +228,6 @@ exports.listen = function(server){
                         return callback("presentation id not found");
                 });
             }
-        });
+        });*/
     }
 };

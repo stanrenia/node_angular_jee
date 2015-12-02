@@ -9,9 +9,13 @@ function eventCrtFnt($scope, $log, $window, factory, comm){
    //CREATE an object for interactions with ng-include controller
     $scope.contentMap={payload: "", array: []};
     $scope.presentationMap={payload: "", array: []};
+
     //$scope.presentationMap={payload: ""};
     $scope.hiddingDZ = true;
     $scope.socket = comm.io.socketConnection($scope, factory.generateUUID());
+
+    // inputs controllers
+    $scope.selectsActive = {pres: true}; // true if we can change presentation using the select html element
 
     var available_content=comm.loadImages();
        available_content.then(
@@ -49,7 +53,7 @@ function eventCrtFnt($scope, $log, $window, factory, comm){
         $scope.currentPresentation.slidArray.push(slid);
         
     }
-    
+
     $scope.savePres=function(){
         var savingPres = comm.savePres($scope.currentPresentation);
         savingPres.then(

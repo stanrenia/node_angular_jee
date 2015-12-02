@@ -74,8 +74,8 @@ function commFnc($http,$q, factory){
             });
             socket.on('newPres', function (pres) {
                 if(pres && pres.id){
-                    scope.currentPresentation = scope.presentationMap[pres.id];
-                    console.log("current Pres has changed");
+                    scope.currentPresentation = scope.presentationMap.payload[pres.id];
+                    console.log("current Pres has changed: " + pres.title);
                 }
             });
             socket.on('currentSlidEvent', function (data) {
