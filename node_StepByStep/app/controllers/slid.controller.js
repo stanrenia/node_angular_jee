@@ -38,8 +38,20 @@ function list(callback){
         }
 	});
 }
-function create(){
-	
+
+function create(param, callback){
+	console.log("param: "+JSON.stringify(param));
+	var slid = new SlidModel(param);
+	slid.setData("test");
+	SlidModel.create(slid, function(err, smodel){
+		if(err){
+			callback(err);
+		}
+		else{
+			callback(null,smodel);
+			
+		}
+	});
 }
 
 function read(){

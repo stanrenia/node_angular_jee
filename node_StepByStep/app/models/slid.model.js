@@ -5,9 +5,8 @@ var SlidModel=function (smodel){
 
 	smodel=check_attr(smodel);
 //	console.log("class slid.model.js:"+smodel.type);
-	
-	this.type=smodel.type;
 	this.id=smodel.id;
+	this.type=smodel.type;
 	this.title=smodel.title;
 	this.filename=smodel.filename;
 	var data=smodel.data;
