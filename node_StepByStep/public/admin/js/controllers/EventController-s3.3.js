@@ -27,27 +27,48 @@ function eventCrtFnt($scope, $log, $window, factory, comm){
           function(errorPayload) {
               $log.error('failure loading content', errorPayload);
           });
-    
-    var firstPresentation=comm.loadPres();
-       firstPresentation.then(
-          function(payload) {
-              $scope.presentationMap.payload = payload;
-              $scope.presentationMap.array = factory.mapToArray(payload);
-              for(var key in $scope.presentationMap.payload){
-                  $scope.currentPresentation = $scope.presentationMap.payload[key];
-                  $scope.currentSlide = $scope.currentPresentation.slidArray[0];
-                  break;
-              }
-              /*$scope.presentationMap.payload= payload;
-              for(var key in $scope.presentationMap.payload){
-                  $scope.currentPresentation[key] =$scope.presentationMap.payload[key];
-              }*/
-          },
-          function(errorPayload) {
-              $log.error('failure loading presentation', errorPayload);
-          });
-    
-    
+
+    function load_init_Pres(pres_id){
+        var firstPresentation=comm.loadPres();
+        firstPresentation.then(
+            function(payload) {
+                $scope.presentationMap.payload = payload;
+                $scope.presentationMap.array = factory.mapToArray(payload);
+                if(pres_id !== undefined){
+                    if(payload[pres_id] !== undefined)
+                        $scope.currentPresentation = $scope.presentationMap.payload[pres_id];
+                    else
+                        console.error("Server sent incoherent data");
+                }
+                else{
+                    // Get the first presentation of the map
+                    for(var key in payload){
+                        $scope.currentPresentation = $scope.presentationMap.payload[key];
+                        break;
+                    }
+                }
+                $scope.currentSlide = $scope.currentPresentation.slidArray[0];
+            },
+            function(errorPayload) {
+                $log.error('failure loading presentation', errorPayload);
+            });
+    }
+    load_init_Pres();
+
+    $scope.update_content = function(pres_id, slide){
+        if(!pres_id) return;
+        if($scope.presentationMap.payload[pres_id] === undefined){
+            load_init_Pres(pres_id);
+        }
+        else{
+            if($scope.currentPresentation.id !== pres_id){
+                $scope.currentPresentation = $scope.presentationMap.payload[pres_id];
+            }
+            $scope.currentSlide = slide;
+            $scope.$apply();
+        }
+    }
+
     $scope.newSlide=function(){
         var slid=factory.slidCreation("slide-Title","slide-text");
         $scope.currentPresentation.slidArray.push(slid);

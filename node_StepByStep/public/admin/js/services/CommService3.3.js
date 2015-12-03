@@ -79,12 +79,10 @@ function commFnc($http,$q, factory){
                 }
             });
             socket.on('currentSlidEvent', function (data) {
-                if(data.slid){
-                    if(data.slid != 0) // only on the admin side
+                if(data.slid && data.pres_id){
+                    if(data.slid != -1) // only on the admin side
                     {
-                        scope.currentSlide = data.slid;
-                        console.log("currentSlide ID: " + scope.currentSlide.id);
-                        scope.$apply();
+                        scope.update_content(data.pres_id, data.slid);
                     }
                     // else: the slide did not change because its in the first or last position.
                 }
