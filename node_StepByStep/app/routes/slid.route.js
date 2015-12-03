@@ -9,33 +9,39 @@ var express = require("express");
 var CONFIG = require("./../../config.json");
 var router = express.Router();
 module.exports = router;
+
 var storage = multer.diskStorage({
 	  destination: function (req, file, cb) {
-	    cb(null, 'uploads/')
+		  cb(null, 'uploads/');
 	  },
 	  filename: function (req, file, cb) {
-	    cb(null, uiid() + '.jpg') //Appending .jpg
+		  console.log("file: " + JSON.stringify(file));
+		  cb(null, uiid() + path.extname(file.originalname));
 	  }
-})
+});
 
 var upload = multer({ storage: storage });
 
 router.post("/slids", upload.single("file"), function(request, response){ 
-	console.log(request.file.path); //  The full path to the uploaded file
-	console.log(request.file.originalname); // Name of the file on the  user's computer     
-	console.log(request.file.mimetype); // Mime type of the file
+	//console.log(request.file.path); //  The full path to the uploaded file
+	//console.log(request.file.originalname); // Name of the file on the  user's computer     
+	//console.log(request.file.mimetype); // Mime type of the file
+	var ofname = request.file.originalname;
+	var fname = request.file.filename;
+	var titre = ofname.substr(0, ofname.lastIndexOf('.'));
+	var id = fname.substr(0, fname.lastIndexOf('.'));
+	var type = path.extname(request.file.originalname).substr(1);
 
-	var json_file ={}
-	var titre = request.file.originalname.split(".");
-	var id = request.file.path.split("\\");
-	
-	json_file["id"]= id[id.length -1];
-	json_file["type"]=request.file.mimetype;
-	json_file["title"]=titre[0];
-	json_file["filename"]=null;
+	var json_file ={};
+	json_file["id"]= id;
+	json_file["type"]= type;
+	json_file["title"]=titre;
+	json_file["filename"]= request.file.filename;
 	json_file["data"]=request.file;
-	
-	SlidController.create(json_file, function(err, data){
+
+	console.log("json_file: " + JSON.stringify(json_file));
+
+	SlidController.create(json_file, true, function(err, data){
 		if(err){
 			response.status(400).send("List of contents not available. Cause: " + err);
 			console.log("data erreur:"+err);

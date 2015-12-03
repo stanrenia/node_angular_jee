@@ -39,17 +39,23 @@ function list(callback){
 	});
 }
 
-function create(param, callback){
-	console.log("param: "+JSON.stringify(param));
+function create(param, isMetaOnly, callback){
+	//console.log("param: "+JSON.stringify(param));
+    if(isMetaOnly !== true) isMetaOnly = false;
+
 	var slid = new SlidModel(param);
-	slid.setData("test");
-	SlidModel.create(slid, function(err, smodel){
+
+	if(isMetaOnly)
+        slid.setData(slid.filename);    // file is created by another function or module, like Multer. So the meta file does not really have data.
+    else
+        slid.setData(param.data);
+
+	SlidModel.create(slid, isMetaOnly, function(err, smodel){
 		if(err){
 			callback(err);
 		}
 		else{
 			callback(null,smodel);
-			
 		}
 	});
 }

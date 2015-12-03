@@ -42,7 +42,7 @@
         
       myDropzone.on("queuecomplete", function(progress) {
         myDropzone.removeAllFiles(true);
-        var available_content=comm.loadImages('test','test');
+        var available_content=comm.loadImages();
             available_content.then(
                 function(payload) { 
                    $scope.$parent.contentMap.payload = payload;

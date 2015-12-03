@@ -29,7 +29,7 @@
                         <button type="button" class="btn btn-default"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>
                     </div>
                     <div class="form-group">
-                        <div><select ng-options="pres as pres.title for pres in presentationMap.array track by pres.id" ng-model="currentPresentation" ng-disabled="selectActive.pres"></select></div>
+                        <div><select ng-options="pres as pres.title for pres in presentationMap.array track by pres.id" ng-model="currentPresentation" ng-disabled="!selectsActive.pres"></select></div>
                         <label for="currentPresTitle">Title</label>
                         <input type="text" ng-model="currentPresentation.title" class="form-control" id="currentPresTitle">
                     </div>

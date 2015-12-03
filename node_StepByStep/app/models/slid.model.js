@@ -42,28 +42,42 @@ var SlidModel=function (smodel){
     }
 }
 
-SlidModel.create=function(smodel, callback){
+SlidModel.create=function(smodel, isMetaOnly, callback){
 	var fs =require("fs");
 	var CONFIG = JSON.parse(process.env.CONFIG);
 	var metadata_path = CONFIG.contentDirectory + "/" +smodel.id +".meta.json";
 	var filename_path = CONFIG.contentDirectory + "/" +smodel.filename;
 	var string_content = JSON.stringify(smodel);
-	
-	fs.writeFile(filename_path, smodel.data, function(err) {
-        if(err) {
-          return callback(err);
-        } else {
-          console.log("Data:"+smodel.data+" saved to " + filename_path);     
-          fs.writeFile(metadata_path, string_content, function(err) {
-              if(err) {
-            	 return callback(err);
-              } else {
-                console.log("meta:"+string_content+" saved to " + metadata_path);
-              }
-              callback(null, smodel);
-          });
-        }
-    });
+
+	if(isMetaOnly === undefined) isMetaOnly = false;
+
+	if(isMetaOnly){
+		fs.writeFile(metadata_path, string_content, function(err) {
+			if(err) {
+				return callback(err);
+			} else {
+				console.log("meta:"+string_content+" saved to " + metadata_path);
+			}
+			callback(null, smodel);
+		});
+	}
+	else{
+		fs.writeFile(filename_path, smodel.data, function(err) {
+			if(err) {
+				return callback(err);
+			} else {
+				console.log("Data:"+smodel.data+" saved to " + filename_path);
+				fs.writeFile(metadata_path, string_content, function(err) {
+					if(err) {
+						return callback(err);
+					} else {
+						console.log("meta:"+string_content+" saved to " + metadata_path);
+					}
+					callback(null, smodel);
+				});
+			}
+		});
+	}
 }
 
 SlidModel.read=function(id, callback){
