@@ -8,6 +8,8 @@ import javax.jms.JMSContext;
 import javax.jms.JMSRuntimeException;
 import javax.jms.Topic;
 
+import common.UserModel;
+
 import ejb_interfaces.MessageSenderLocal;
 
 /**
@@ -21,9 +23,19 @@ public class MessageSender implements MessageSenderLocal{
 
 	@Override
 	public void sendMessage(String message) {
-		// TODO Auto-generated method stub
 		try{
 		      context.createProducer().send(topic, message);
+		   } 
+		catch (JMSRuntimeException ex) {
+		      // handle exception (details omitted)
+			System.out.println("Error on JMS sendMessage()");
+		   }
+	}
+	
+	@Override
+	public void sendMessage(UserModel user) {
+		try{
+		      context.createProducer().send(topic, user);
 		   } 
 		catch (JMSRuntimeException ex) {
 		      // handle exception (details omitted)

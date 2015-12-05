@@ -36,7 +36,6 @@ public class WatcherAuthServlet extends HttpServlet {
      */
     public WatcherAuthServlet() {
         super();
-        // TODO Auto-generated constructor stub
     }
 
 	/**
@@ -46,7 +45,11 @@ public class WatcherAuthServlet extends HttpServlet {
 		// TODO Auto-generated method stub
 		System.out.println("aaa!!!aaaa!!!");
 		response.sendRedirect("index.html");
-		sender.sendMessage("Test JMS izi");
+		UserModel user = new UserModel("jdoe", "pwd", "dou", "bou", "watcher");
+//		sender.sendMessage("Test JMS izi");
+		sender.sendMessage(user);
+		UserModel userR = receiver.receiveMessage();
+		System.out.println("Servlet Receiving msg: " + userR.toString());
 	}
 
 	/**
@@ -88,11 +91,6 @@ public class WatcherAuthServlet extends HttpServlet {
         PrintWriter out = response.getWriter();
         out.println(jsonToSend.toString());
         out.close();
-		//}
-		/* catch (ParseException e) {
-			System.out.println("Error try catch");
-			e.printStackTrace();
-		}*/
 	}
 
 }

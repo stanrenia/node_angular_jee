@@ -2,7 +2,9 @@ package ejb_interfaces;
 
 import javax.ejb.Local;
 
+import common.UserModel;
+
 @Local
 public interface MessageReceiverSyncLocal {
-	public String receiveMessage();
+	public UserModel receiveMessage();
 }

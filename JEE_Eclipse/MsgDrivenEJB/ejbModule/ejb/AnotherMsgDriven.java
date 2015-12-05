@@ -48,14 +48,12 @@ public class AnotherMsgDriven implements MessageListener {
 				ObjectMessage msg = (ObjectMessage) message;
 				if( msg.getObject() instanceof UserModel){
 					UserModel user=(UserModel)msg.getObject();
-					System.out.println("User Details: ");
-					System.out.println("login:"+user.getLogin());
-					System.out.println("pwd:"+user.getPwd());
+					System.out.println("User Details: " + user.toString());
 					Boolean isValid = dataContainer.checkUser(user);
 					if( isValid){
+						System.out.println("User is valid!");
 						sender.sendMessage(user);
 					}else{
-			//			user.setRole(currentTestRole);
 						sender.sendMessage(user);
 					}
 				}
