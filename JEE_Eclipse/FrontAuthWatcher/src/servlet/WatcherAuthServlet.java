@@ -1,6 +1,6 @@
 package servlet;
 
-import model.UserModel;
+import common.UserModel;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -25,11 +25,12 @@ import ejb_interfaces.MessageSenderLocal;
 public class WatcherAuthServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
     private UserModel jdoe = new UserModel("jdoe", "jdoepwd", "john", "doe", "admin");  
-//	@EJB
-//	MessageSenderLocal sender;
-//	
-//	@EJB
-//	MessageReceiverSyncLocal receiver;
+    
+	@EJB
+	MessageSenderLocal sender;
+	
+	@EJB
+	MessageReceiverSyncLocal receiver;
     /**
      * @see HttpServlet#HttpServlet()
      */
@@ -45,7 +46,7 @@ public class WatcherAuthServlet extends HttpServlet {
 		// TODO Auto-generated method stub
 		System.out.println("aaa!!!aaaa!!!");
 		response.sendRedirect("index.html");
-//		sender.sendMessage("Test JMS izi");
+		sender.sendMessage("Test JMS izi");
 	}
 
 	/**

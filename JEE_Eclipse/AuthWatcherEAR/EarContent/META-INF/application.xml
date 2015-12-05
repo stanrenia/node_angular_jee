@@ -10,4 +10,7 @@
   <module>
     <ejb>MiddleAuthWatcher.jar</ejb>
   </module>
+  <module>
+    <ejb>MsgDrivenEJB.jar</ejb>
+  </module>
 </application>

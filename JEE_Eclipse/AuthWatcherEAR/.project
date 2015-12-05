@@ -6,6 +6,7 @@
 		<project>FrontAuthWatcher</project>
 		<project>MiddleAuthWatcher</project>
 		<project>MiddleAuthWatcherClient</project>
+		<project>MsgDrivenEJB</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

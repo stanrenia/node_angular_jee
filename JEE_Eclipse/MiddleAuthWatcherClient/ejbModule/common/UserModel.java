@@ -1,6 +1,9 @@
-package model;
+package common;
 
-public class UserModel {
+import java.io.Serializable;
+
+public class UserModel implements Serializable {
+
 	private String login;
 	private String pwd;
 	private String nom;
@@ -53,7 +56,4 @@ public class UserModel {
 		return "UserModel [login=" + login + ", pwd=" + pwd + ", nom=" + nom
 				+ ", prenom=" + prenom + ", role=" + role + "]";
 	}
-
-	
-	
 }
