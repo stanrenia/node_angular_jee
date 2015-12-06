@@ -1,6 +1,7 @@
 package model;
 
 import common.UserModel;
+import entity.UserModelEntity;
 
 public class DataContainer {
 	
@@ -23,6 +24,17 @@ public class DataContainer {
 		}
 		
 		return isValid;
+	}
+	
+	public UserModel EntityToModel(UserModelEntity userE){
+		UserModel user = new UserModel(userE.getLogin(), userE.getPwd(), userE.getPrenom(), userE.getNom(), userE.getRole());
+		return user;
+	}
+	
+	public UserModelEntity ModelToEntity(UserModel user){
+		UserModelEntity userE = new UserModelEntity();
+		userE.setUserData(user.getLogin(), user.getPwd(), user.getPrenom(), user.getNom(), user.getRole());
+		return userE;
 	}
 	
 }
