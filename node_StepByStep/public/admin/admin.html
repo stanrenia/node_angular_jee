@@ -24,15 +24,26 @@
                      </div>
                     <div class="btn-group" role="group" aria-label="...">
                         <button type="button" class="btn btn-default" ng-click="savePres()"><span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span></button>
-                        <button type="button" class="btn btn-default" ng-click="newSlide()"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
-                        </button>
-                        <button type="button" class="btn btn-default"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>
+                        <!--<button type="button" class="btn btn-default"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>-->
+                        <button type="button" ng-show="!isCreatingPres" class="btn btn-default" ng-click="activeNewPres()">
+                            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add Presentation</button>
+                        <button type="button" ng-show="isCreatingPres" class="btn btn-default" ng-click="activeNewPres()">
+                            <span class="glyphicon glyphicon-minus" aria-hidden="true"></span> Hide section</button>
                     </div>
                     <div class="form-group">
-                        <div><select ng-options="pres as pres.title for pres in presentationMap.array track by pres.id" ng-model="currentPresentation" ng-disabled="!selectsActive.pres"></select></div>
+                            <ul ng-show="isCreatingPres" style="list-style-type: none;">
+                                <li><label for="in_pres_title">Title</label><input id="in_pres_title" ng-model="in_pres.title"/></li>
+                                <li><label for="in_pres_desc">Description</label><input id="in_pres_desc" ng-model="in_pres.desc"/></li>
+                                <li><button ng-click="newPres()">Create new Presentation</button></li>
+                            </ul>
+                    <div>Select Presentation <select ng-options="pres as pres.title for pres in presentationMap.array track by pres.id" ng-model="currentPresentation" ng-disabled="!selectsActive.pres"></select>
+                    </div>
                         <label for="currentPresTitle">Title</label>
                         <input type="text" ng-model="currentPresentation.title" class="form-control" id="currentPresTitle">
                     </div>
+                </div>
+                <div>
+                    <button type="button" class="btn btn-default" ng-click="newSlide()"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add Slide</button>
                 </div>
                  <div ng-repeat="slid in currentPresentation.slidArray" class="col-xs-12 col-sm-12 col-md-12 col-lg-12" ng-click="selectCurrentSlid(slid)">
                      <h3>{{slid.title}}</h3>                     

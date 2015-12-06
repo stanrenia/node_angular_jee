@@ -10,12 +10,16 @@ function eventCrtFnt($scope, $log, $window, factory, comm){
     $scope.presentationMap={payload: "", array: []};
 
     //$scope.presentationMap={payload: ""};
-    $scope.hiddingDZ = true;
+
     var idToken = $window.localStorage.getItem("idtoken");
     $scope.socket = comm.io.socketConnection($scope, idToken);
 
     // inputs controllers
     $scope.selectsActive = {pres: true}; // true if we can change presentation using the select html element
+
+    // view variables
+    $scope.hiddingDZ = true;
+    $scope.isCreatingPres = false;
 
     $scope.forceReloging = function(){
         $window.localStorage.setItem("forcingLoging", true);
@@ -80,8 +84,18 @@ function eventCrtFnt($scope, $log, $window, factory, comm){
         
     }
 
+    $scope.newPres=function(){
+        var pres =  factory.presentationCreation($scope.in_pres.title, $scope.in_pres.desc);
+        $scope.presentationMap.payload[pres.id] = pres;
+        $scope.presentationMap.array = factory.mapToArray($scope.presentationMap.payload);
+    }
+
+    $scope.activeNewPres=function(){
+        $scope.isCreatingPres = !$scope.isCreatingPres;
+    }
+
     $scope.savePres=function(){
-        var savingPres = comm.savePres($scope.currentPresentation);
+        var savingPres = comm.savePres(idToken, $scope.currentPresentation);
         savingPres.then(
             function () {
                 $scope.presentationMap.payload[$scope.currentPresentation.id] = $scope.currentPresentation;
