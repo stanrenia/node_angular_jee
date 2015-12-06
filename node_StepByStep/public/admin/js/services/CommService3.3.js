@@ -46,10 +46,11 @@ function commFnc($http,$q, factory){
         return deferred.promise;
     }
 
-    function savePres(pres){
+    function savePres(id, pres){
         var deferred = $q.defer();
         // FOR LOCAL TEST
-        $http.post("/savePres", JSON.stringify(pres))
+        var objTosend = {pres: pres, pres_id: pres.id, id: id};
+        $http.post("/savePres", JSON.stringify(objTosend))
             .success(function(data){
                 if(data)
                     deferred.resolve(data);
@@ -92,6 +93,10 @@ function commFnc($http,$q, factory){
                 if(data)
                     console.warn(data);
                 //if(data.content && data.content !== null)
+            });
+
+            socket.on("disconnect", function(){
+               scope.forceReloging();
             });
             return socket;
         }

@@ -5,17 +5,22 @@ eventCrtFnt.$inject=['$scope','$log','$window','factory','comm'];
 function eventCrtFnt($scope, $log, $window, factory, comm){
 
     //$scope.currentPresentation=factory.presentationCreation("template_pres","description of the template présentation");
-    
    //CREATE an object for interactions with ng-include controller
     $scope.contentMap={payload: "", array: []};
     $scope.presentationMap={payload: "", array: []};
 
     //$scope.presentationMap={payload: ""};
     $scope.hiddingDZ = true;
-    $scope.socket = comm.io.socketConnection($scope, factory.generateUUID());
+    var idToken = $window.localStorage.getItem("idtoken");
+    $scope.socket = comm.io.socketConnection($scope, idToken);
 
     // inputs controllers
     $scope.selectsActive = {pres: true}; // true if we can change presentation using the select html element
+
+    $scope.forceReloging = function(){
+        $window.localStorage.setItem("forcingLoging", true);
+        $window.location.href = "/login/index.html";
+    }
 
     var available_content=comm.loadImages();
        available_content.then(

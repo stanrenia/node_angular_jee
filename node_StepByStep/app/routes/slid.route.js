@@ -8,7 +8,6 @@ var SlidController = require("./../controllers/slid.controller.js");
 var express = require("express");
 var CONFIG = require("./../../config.json");
 var router = express.Router();
-module.exports = router;
 
 var storage = multer.diskStorage({
 	  destination: function (req, file, cb) {

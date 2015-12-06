@@ -5,9 +5,9 @@
 console.log("It Works!");
 var SlidModel=require("./app/models/slid.model.js");
 var PresModel=require("./app/models/pres.model.js");
-
+var authUser = require("./app/controllers/auth.controller.js");
 var CONFIG = require("./config.json");
-
+var requests = require("request");
 var path = require("path");
 var fs =require("fs");
 var http = require("http");
@@ -30,20 +30,66 @@ app.get("/", function(request, response){
     response.send("It works");
 });
 
-//
-//app.use(function(request, response, callback){
-//    response.send("It works 145 !");
-//    callback();
-//});
-var __dirname = "./";
-app.use("/test", express.static(__dirname));
+app.post("/fakeauth", function(request, response){
+    var queryResponse= "";
+    request.on('data', function(data) {
+        queryResponse= queryResponse +data;
+    });
+
+    request.on('end', function() {
+        var params = JSON.parse(queryResponse);
+
+        // *** Authentication request to JEE WebService ***
+        requests.post("http://localhost:8080/FrontAuthWatcher/WatcherAuth",
+            {body: {login: params.login, pwd: params.pwd}, json: true},
+            function(err, res, body){
+                if(err){
+                    response.status(401).send("");
+                }
+                else{
+                    //console.log("Body req: " + body + " " + JSON.stringify(body));
+                    if(body.validAuth){
+                        var page = "";
+                        var user = authUser.createUser({login: params.login, pwd: params.pwd, role: body.role});
+                        if(body.role == "admin"){
+                            page = "/admin/admin.html";
+                            response.send({user: user, page: page});
+                        }
+                        else if(body.role == "watcher"){
+                            page = "/watch/watch.html";
+                            response.send({user: user, page: page});
+                        }
+                        else{
+                            response.status(403).send("Access Forbidden");
+                        }
+                    }
+                    else{
+                        response.status(403).send("Access Forbidden");
+                    }
+                }
+        });
+        /*if(params.login == "jdoe"){
+            user = authUser.createUser({login: params.login, pwd: params.pwd, role: "admin"});
+            console.log("User created: " + JSON.stringify(user));
+            response.send({user: user});
+        }
+        else if(params.login == "w"){
+            user = authUser.createUser({login: params.login, pwd: params.pwd, role: "watcher"});
+            console.log("User created: " + JSON.stringify(user));
+            response.send({user: user});
+        }
+        else{
+            response.status(403).send("Access Forbidden");
+        }*/
+    });
+});
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use("/watch", express.static(path.join(__dirname, "public/watch")));
 app.use("/admin", express.static(path.join(__dirname, "public/admin")));
+app.use("/login", express.static(path.join(__dirname, "public/login")));
 
 app.use("/loadPres", function(request, response){
     var presID = request.query.presid;
-    //console.log("(get) PresID: "  + presID);
     if(presID !== undefined){
         PresModel.read(presID, function(err, presData){
             if(err){
@@ -70,97 +116,34 @@ app.post("/savePres", function(request, response){
     var queryResponse= "";
     request.on('data', function(data) {
         queryResponse= queryResponse +data;
-        //console.log('data' + queryResponse);
     });
 
     request.on('end', function(){
-        //console.log('end: ' + queryResponse);
-        
-        var res_json = JSON.parse(queryResponse);
-        var id_json=res_json.id;
-        
-        var json_path = CONFIG.presentationDirectory + "/" +id_json +".pres.json";
-        fs.writeFile(json_path, JSON.stringify(res_json), function(err) {
-            if(err) {
-              console.log(err);
-                response.status(500).send("Error occured while saving the presentation");
-            } else {
-              response.send("OK");
-            }
-        });
+
+        var req_json = JSON.parse(queryResponse);
+        var pres = req_json.pres;
+        var pres_id=req_json.pres_id;
+        var id = req_json.id;
+        console.log("SavePres data:  " + JSON.stringify(req_json));
+
+        // *** Check if user is autenticated ***
+        if(authUser.getUserFromID(id) != null){
+            var json_path = CONFIG.presentationDirectory + "/" +pres_id +".pres.json";
+            fs.writeFile(json_path, JSON.stringify(pres), function(err) {
+                if(err) {
+                    console.log(err);
+                    response.status(500).send("Error occured while saving the presentation");
+                } else {
+                    response.send("OK");
+                }
+            });
+        }
+        else{
+            console.log("A saving presentation demand has been blocked because user is not authenticated");
+            response.status(403).send("Access Forbidden!");
+        }
+
     });
 });
 
-/*app.use("/slids", function(request, response){
-	var queryResponse= "";
-    request.on('data', function(data) {
-        queryResponse= queryResponse +data;
-        console.log('data' + queryResponse);
-    });
 
-    request.on('end', function(){
-        console.log('end: ' + queryResponse);
-        
-        var res_json = JSON.parse(queryResponse);
-        var id_json=res_json.id;
-        
-        var slid = new SlidModel();     
-        
-        slid.type = res_json.type;
-        slid.setData(res_json.data);
-        slid.id= res_json.id;
-        slid.title = res_json.title;
-        slid.filename = res_json.filename;
-
-
-        SlidModel.create(slid, function(err, data){
-        	
-        if(err){
-            console.log("Slid non crée !");
-        }else{
-            console.log("create slid");
-            console.log("Slid created:  "+data);
-        }
-        });
-    });
-});*/
-
-/*var slid = new SlidModel();
-//
-//
-slid.type = "txt";
-slid.setData("Test static pour stan");
-slid.id= "teststatic";
-slid.title ="Les test static pour stan";
-slid.filename = "teststatic.txt";
-
-
-SlidModel.create(slid, function(err, data){
-    if(err) return;
-	console.log("create");
-	console.log(data);
-
-    SlidModel.suppr(slid.id, function(err, data){
-        console.log("data:"+data+"en cours de suppression ..");
-        console.log("slid supprimé !");
-    });
-});*/
-//
-//SlidModel.read(slid.id, function(err, data){
-//	console.log("read\n");
-//	 
-//	 console.log("test dans le read app:"+data);
-//});
-//
-//slid.setData("Nouveau texte pour stan");
-//slid.title ="Les réseaux de neuronnes";
-//
-//SlidModel.update(slid, function(err, data){
-//	console.log("slid updated: " +data);
-//	console.log("slid : " +JSON.stringify(slid));
-//})
-//
-
-
-	
-//});

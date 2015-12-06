@@ -12,6 +12,7 @@ var getListFile = require("../../myListFile.js");
 var path = require("path");
 var SlidModel = require("../models/slid.model.js");
 var PresModel=require("../models/pres.model.js");
+var authUser = require("./auth.controller.js");
 var CONFIG = JSON.parse(process.env.CONFIG);
 var autoPlay = null;
 
@@ -24,10 +25,19 @@ exports.listen = function(server){
 
     // Handling IO events
     io.on("connection", function (socket) {
-        // First thing is notify the client in order to get his ID from 'data_comm' event
+        // First thing is notifying the client in order to get his ID from 'data_comm' event
         socket.emit("connection");
-        socket.on("data_comm", function(id){
-            socketMap[id] = socket;
+        // If the given ID is matching a User ID, socket is keeping alive. Otherwise, socket is disconnected.
+        socket.on("data_comm", function(data){
+            console.log("Socket connection on ID: " + data.id);
+            if(authUser.getUserFromID(data.id) == null){
+                console.log("Disconnecting a socket");
+                socket.emit("disconnect");
+                socket.disconnect();
+            }
+            else{
+                socketMap[data.id] = socket;
+            }
         });
         // Handling server internal errors
         socket.on('error', function (data) {
