@@ -1,0 +1,35 @@
+
+.btnBlue{
+    background-color: #00d10c;
+}
+
+.btnBlueSQL{
+    background-color: #0bceff;
+    margin-left: 30px;
+}
+
+#divUserList{
+    margin-top: 10px;
+}
+
+.basicBack{
+    background-image: url("../img/background.jpg");
+}
+
+.whiteBack{
+    background-color: #ffffff;
+}
+
+.lightGrayBack{
+    background-color: #b9b9b9;
+}
+
+.form-group input{
+    max-width: 50%;
+    margin-top: 20px;
+    margin-left: 25%;
+}
+
+form button{
+    margin-left: 25%;
+}

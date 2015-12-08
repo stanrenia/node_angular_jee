@@ -4,16 +4,22 @@ eventCrtFnt.$inject=['$scope','$log','$window','factory','comm'];
 
 function eventCrtFnt($scope, $log, $window, factory, comm){
 
-    $scope.currentPresentation=factory.presentationCreation("template_pres","description of the template présentation");
-    
+    //$scope.currentPresentation=factory.presentationCreation("template_pres","description of the template présentation");
    //CREATE an object for interactions with ng-include controller
     $scope.contentMap={payload: "", array: []};
-    $scope.presentationMap={};
-    //$scope.presentationMap={payload: ""};
-    $scope.hiddingDZ = true;
-    $scope.socket = comm.io.socketConnection($scope, factory.generateUUID());
+    $scope.presentationMap={payload: "", array: []};
 
-    var available_content=comm.loadImages('FirstPres');
+    //$scope.presentationMap={payload: ""};
+
+    var idToken = $window.localStorage.getItem("idtoken");
+    $scope.socket = comm.io.socketConnection($scope, idToken);
+
+    $scope.forceReloging = function(){
+        $window.localStorage.setItem("forcingLoging", true);
+        $window.location.href = "/login/index.html";
+    }
+
+    var available_content=comm.loadImages();
        available_content.then(
           function(payload) { 
               $scope.contentMap.payload = payload;
@@ -23,44 +29,56 @@ function eventCrtFnt($scope, $log, $window, factory, comm){
           function(errorPayload) {
               $log.error('failure loading content', errorPayload);
           });
-    
-    var firstPresentation=comm.loadPres();
-       firstPresentation.then(
-          function(payload) {
-              $scope.presentationMap = payload;
-              for(var key in $scope.presentationMap){
-                  $scope.currentPresentation = $scope.presentationMap[key];
-                  $scope.currentSlide = $scope.currentPresentation.slidArray[0];
-                  break;
-              }
-              /*$scope.presentationMap.payload= payload;
-              for(var key in $scope.presentationMap.payload){
-                  $scope.currentPresentation[key] =$scope.presentationMap.payload[key];
-              }*/
-          },
-          function(errorPayload) {
-              $log.error('failure loading presentation', errorPayload);
-          });
-    
-    
-    $scope.newSlide=function(){
-        var slid=factory.slidCreation("slide-Title","slide-text");
-        $scope.currentPresentation.slidArray.push(slid);
-        
-    }
-    
-    $scope.selectCurrentSlid=function(slide){
-        $scope.currentSlide=slide;
-        
-    }
 
+    function load_init_Pres(pres_id){
+        var firstPresentation=comm.loadPres();
+        firstPresentation.then(
+            function(payload) {
+                $scope.presentationMap.payload = payload;
+                $scope.presentationMap.array = factory.mapToArray(payload);
+                if(pres_id !== undefined){
+                    if(payload[pres_id] !== undefined)
+                        $scope.currentPresentation = $scope.presentationMap.payload[pres_id];
+                    else
+                        console.error("Server sent incoherent data");
+                }
+                else{
+                    //TODO GET DEFAULT PRESENTATION
+                    for(var key in payload){
+                        $scope.currentPresentation = $scope.presentationMap.payload[key];
+                        break;
+                    }
+                }
+                $scope.currentSlide = $scope.currentPresentation.slidArray[0];
+            },
+            function(errorPayload) {
+                $log.error('failure loading presentation', errorPayload);
+            });
+    }
+    load_init_Pres();
+
+    $scope.update_content = function(pres_id, slide){
+        if(!pres_id) return;
+        if($scope.presentationMap.payload[pres_id] === undefined){
+            load_init_Pres(pres_id);
+        }
+        else{
+            if($scope.currentPresentation.id !== pres_id){
+                $scope.currentPresentation = $scope.presentationMap.payload[pres_id];
+            }
+            $scope.currentSlide = slide;
+            $scope.$apply();
+        }
+    }
+    
     $scope.getCurrentContent=function(){
         if(1  in  $scope.currentSlide.contentMap){
             return $scope.currentSlide.contentMap[1];
         }
     }
     
-    $scope.isSlidContentEmpty=function(slid) {
-        return slid.contentMap[1] == undefined;
+    $scope.isSlidContentEmpty=function(slid){
+        if(slid == undefined) return false;
+        return slid.contentMap[1]== undefined;
     }
-}
+};

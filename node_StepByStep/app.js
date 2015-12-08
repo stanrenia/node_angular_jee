@@ -30,6 +30,48 @@ app.get("/", function(request, response){
     response.send("It works");
 });
 
+
+app.post("/genuineAuth", function(request, response) {
+    var queryResponse = "";
+    request.on('data', function (data) {
+        queryResponse = queryResponse + data;
+    });
+
+    request.on('end', function () {
+        var params = JSON.parse(queryResponse);
+
+        // *** Authentication request to JEE WebService ***
+        requests.post("http://localhost:8080/FrontAuthWatcher/WatcherAuth",
+            {body: {login: params.login, pwd: params.pwd}, json: true},
+            function (err, res, body) {
+                if (err) {
+                    response.status(401).send("");
+                }
+                else {
+                    //console.log("Body req: " + body + " " + JSON.stringify(body));
+                    if (body.validAuth) {
+                        var page = "";
+                        var user = authUser.createUser({login: params.login, pwd: params.pwd, role: body.role});
+                        if (body.role == "admin") {
+                            page = "/admin/admin.html";
+                            response.send({user: user, page: page});
+                        }
+                        else if (body.role == "watcher") {
+                            page = "/watch/watch.html";
+                            response.send({user: user, page: page});
+                        }
+                        else {
+                            response.status(403).send("Access Forbidden");
+                        }
+                    }
+                    else {
+                        response.status(403).send("Access Forbidden");
+                    }
+                }
+            });
+    });
+});
+
 app.post("/fakeauth", function(request, response){
     var queryResponse= "";
     request.on('data', function(data) {
@@ -38,51 +80,30 @@ app.post("/fakeauth", function(request, response){
 
     request.on('end', function() {
         var params = JSON.parse(queryResponse);
-
-        // *** Authentication request to JEE WebService ***
-        requests.post("http://localhost:8080/FrontAuthWatcher/WatcherAuth",
-            {body: {login: params.login, pwd: params.pwd}, json: true},
-            function(err, res, body){
-                if(err){
-                    response.status(401).send("");
-                }
-                else{
-                    //console.log("Body req: " + body + " " + JSON.stringify(body));
-                    if(body.validAuth){
-                        var page = "";
-                        var user = authUser.createUser({login: params.login, pwd: params.pwd, role: body.role});
-                        if(body.role == "admin"){
-                            page = "/admin/admin.html";
-                            response.send({user: user, page: page});
-                        }
-                        else if(body.role == "watcher"){
-                            page = "/watch/watch.html";
-                            response.send({user: user, page: page});
-                        }
-                        else{
-                            response.status(403).send("Access Forbidden");
-                        }
-                    }
-                    else{
-                        response.status(403).send("Access Forbidden");
-                    }
-                }
-        });
-        /*if(params.login == "jdoe"){
+        var page = "";
+        console.log(JSON.stringify(params));
+        if(params.login == "admin"){
             user = authUser.createUser({login: params.login, pwd: params.pwd, role: "admin"});
             console.log("User created: " + JSON.stringify(user));
-            response.send({user: user});
+            page = "/admin/admin.html";
+            response.send({user: user, page: page});
         }
-        else if(params.login == "w"){
+        else if(params.login == "watcher"){
             user = authUser.createUser({login: params.login, pwd: params.pwd, role: "watcher"});
             console.log("User created: " + JSON.stringify(user));
-            response.send({user: user});
+            page = "/watch/watch.html";
+            response.send({user: user, page: page});
         }
         else{
             response.status(403).send("Access Forbidden");
-        }*/
+        }
     });
 });
+
+app.get("/fakeauth", function(request, response){
+    response.send([{login:"admin", pwd:"", role:"admin"}, {login:"watcher", pwd: "", role:"watcher"}]);
+});
+
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use("/watch", express.static(path.join(__dirname, "public/watch")));
 app.use("/admin", express.static(path.join(__dirname, "public/admin")));

@@ -59,8 +59,24 @@ public class WatcherAuthServlet extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String jsonString = IOUtils.toString(request.getInputStream());
 		System.out.println("(Servlet) Request string " + jsonString);
+		
+		JSONObject jsonReceive = (JSONObject) JSONValue.parse(jsonString);
+		UserModel user = new UserModel("", "", "", "", "");
+
+		// Handle Request string of JSON type  "{param:value, param2:value2}" and of classic type "param=value&param2=value2"
+		if(jsonReceive == null)
+			user = getUserFromRequest(jsonString);
+		else{
+			String login = (String) jsonReceive.get("login");
+			user.setLogin(login);
+			String pwd = (String) jsonReceive.get("pwd");
+			user.setPwd(pwd);
+			if("".equals(user.getLogin()) || "".equals(user.getPwd())){
+				user = null;
+			}
+		}
+		
         JSONObject jsonToSend = new JSONObject();
-        UserModel user = getUserFromRequest(jsonString);
         if (user != null){
             System.out.println("(Servlet) User from request: " + user.toString());
         	sender.sendMessage(user);

@@ -4,6 +4,21 @@ function authFnc($http,$q) {
 
     function authAsk(login, pwd){
         var deferred = $q.defer();
+        $http.post('/genuineAuth', {login:login, pwd:pwd})
+            .success(function(data) {
+                deferred.resolve({"user":data.user, page: data.page, "validAuth": true, msg: ""});
+            })
+            .error(function(data) {
+                var msg = "";
+                if(data && data.msg)
+                    msg = data.msg;
+                deferred.reject({"user":{},"ValidAuth": false, msg: msg});
+            });
+        return  deferred.promise;
+    }
+
+    function authAsknoDB(login, pwd){
+        var deferred = $q.defer();
         $http.post('/fakeauth', {login:login, pwd:pwd})
             .success(function(data) {
                 deferred.resolve({"user":data.user, page: data.page, "validAuth": true, msg: ""});
@@ -13,6 +28,18 @@ function authFnc($http,$q) {
                 if(data && data.msg)
                     msg = data.msg;
                 deferred.reject({"user":{},"ValidAuth": false, msg: msg});
+            });
+        return  deferred.promise;
+    }
+
+    function getLocalUserList(){
+        var deferred = $q.defer();
+        $http.get('/fakeauth')
+            .success(function(data) {
+                deferred.resolve(data);
+            })
+            .error(function(data) {
+                deferred.reject({msg: "Cannot get User List"});
             });
         return  deferred.promise;
     }
@@ -31,6 +58,8 @@ function authFnc($http,$q) {
 
 	return {
         authAsk: authAsk,
-        User: User
+        User: User,
+        authAsknoDB: authAsknoDB,
+        getLocalUserList: getLocalUserList
     };
 }

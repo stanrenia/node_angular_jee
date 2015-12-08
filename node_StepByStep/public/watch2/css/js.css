@@ -56,15 +56,6 @@ html,body {height: 100%; padding-top: 0px; overflow-x:hidden; overflow-y:hidden}
     margin: 1em;
 }
 
-.right-panel{
-    background-color: #ff0443;
-}
-
-.left-panel{
-    background-color: #7498FF;
-
-}
-
 /* DROPZONE CSS */
  /*Mimic table appearance */
     div.table {
