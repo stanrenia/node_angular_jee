@@ -39,6 +39,7 @@ app.post("/genuineAuth", function(request, response) {
 
     request.on('end', function () {
         var params = JSON.parse(queryResponse);
+        console.log("Genuine: " + JSON.stringify(params));
 
         // *** Authentication request to JEE WebService ***
         requests.post("http://localhost:8080/FrontAuthWatcher/WatcherAuth",

@@ -90,8 +90,10 @@ function commFnc($http,$q, factory){
             });
 
             socket.on('errorClient', function (data) {
-                if(data)
+                if(data){
                     console.warn(data);
+                    scope.setErrMsg(data);
+                }
                 //if(data.content && data.content !== null)
             });
 
@@ -99,6 +101,9 @@ function commFnc($http,$q, factory){
                scope.forceReloging();
             });
             return socket;
+        }
+        comm.io.emitReloadPres=function(socket){
+            socket.emit("reloadPres");
         }
         comm.io.emitPrev=function(socket){
             socket.emit('slidEvent', {'CMD':"PREV"});

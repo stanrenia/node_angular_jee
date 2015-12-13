@@ -21,6 +21,7 @@ function playerCtrlFnt($scope, $log, $window, factory, comm) {
             case "start":
                 comm.io.emitStart(socket, curPres.id);
                 $scope.selectsActive.pres = false;
+                $scope.setErrMsg("");
                 $(".glyphicon-play").css({color: "red"});
                 $(".glyphicon-pause").css({color: "black"});
                 break;

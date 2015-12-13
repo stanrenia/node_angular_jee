@@ -67,6 +67,18 @@ router.get("/slids", function(request, response){
 	});
 });
 
+router.get("/slids/:id", function(request, response) {
+
+	var id = request.url.split("/slids/");
+	SlidController.read(id[1], function (err, slid) {
+		if (err) {
+			response.status(400).send("Slid not available. Cause: " + err);
+		}
+		else {
+			response.json(JSON.parse(slid));
+		}
+	});
+});
 
 
 module.exports = router;

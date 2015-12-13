@@ -30,13 +30,18 @@ exports.listen = function(server){
         // If the given ID is matching a User ID, socket is keeping alive. Otherwise, socket is disconnected.
         socket.on("data_comm", function(data){
             console.log("Socket connection on ID: " + data.id);
-            if(authUser.getUserFromID(data.id) == null){
+            var user = authUser.getUserFromID(data.id);
+            if(user == null){
                 console.log("Disconnecting a socket");
                 socket.emit("disconnect");
                 socket.disconnect();
             }
             else{
-                socketMap[data.id] = socket;
+                socketMap[socket] = user;
+                if(curPres !== null && user.role === "watcher"){
+                    var dataToSend = {slid: curPres.slidArray[curSlidIndex], pres_id: curPres.id};
+                    socket.emit("currentSlidEvent", dataToSend);
+                }
             }
         });
         // Handling server internal errors
@@ -46,11 +51,28 @@ exports.listen = function(server){
                 console.warn(data);
         });
 
-        // Receving commands from Admin
+        socket.on('reloadPres', function () {
+            if(curPres !== null){
+                // Read again the current presentation when admin updated it.
+                changePres(0, function(err){
+                    if(err){
+                        socket.emit("errorClient", "Server could not read new saved presentation");
+                        socket.emit("error", "Cannot read presentation while trying to reload: " + err);
+                    }
+                });
+            }
+            // Notify Watchers  - Reload contents + presentations
+            socket.broadcast.emit("currentSlidEvent", {pres_id: 1, slid: 1});
+        });
+
+        // Receiving commands from Admin
         socket.on("slidEvent", function (cmd) {
             console.log("slidEvent: " + JSON.stringify(cmd));
-            // Handling BAD requests
-            if(cmd.CMD == undefined){
+            /*if(!checkSocket(socket, "admin")){
+                console.warn("errorClient: Access Forbidden");
+                socket.emit("errorClient", "Access Forbidden");
+            }*/
+            if(cmd.CMD == undefined){ // Handling BAD requests
                 console.warn("errorClient: Wrong given parameters");
                 socket.emit("errorClient", "Wrong given parameters");
             }
@@ -188,6 +210,7 @@ exports.listen = function(server){
             if(curPres.id === pres_id){
                 return callback(null, false);
             }
+            if(pres_id == 0) pres_id = curPres.id;
         }
         // Reads presentation files located in /presentation_content and get the corresponding presentation
         PresModel.read(pres_id, function(err, data){
@@ -199,5 +222,10 @@ exports.listen = function(server){
                 return callback(null, true);
             }
         });
+    }
+
+    function checkSocket(socket, role){
+        if(socketMap[socket] === undefined) return false;
+        return socketMap[socket].role === role;
     }
 };

@@ -4,17 +4,19 @@ eventCrtFnt.$inject=['$scope','$log','$window','factory','comm'];
 
 function eventCrtFnt($scope, $log, $window, factory, comm){
 
-    //$scope.currentPresentation=factory.presentationCreation("template_pres","description of the template présentation");
-   //CREATE an object for interactions with ng-include controller
-    $scope.contentMap={payload: "", array: []};
-    $scope.presentationMap={payload: "", array: []};
-
-    //$scope.presentationMap={payload: ""};
-
+    // ID and socket
     var idToken = $window.localStorage.getItem("idtoken");
     $scope.socket = comm.io.socketConnection($scope, idToken);
 
-    // inputs controllers
+    // main data
+    $scope.contentMap={payload: "", array: []};
+    $scope.presentationMap={payload: "", array: []};
+
+    // text variables
+    $scope.logMsg = "";
+    $scope.errMsg = "";
+
+    // inputs availability
     $scope.selectsActive = {pres: true}; // true if we can change presentation using the select html element
 
     // view variables
@@ -84,6 +86,17 @@ function eventCrtFnt($scope, $log, $window, factory, comm){
         
     }
 
+    $scope.removeSlide=function(){
+        var idx = $scope.currentPresentation.slidArray.indexOf($scope.currentSlide);
+        if(idx  == -1) return;
+        if(idx > 0 ) idx = idx - 1;
+        $scope.currentPresentation.slidArray = $scope.currentPresentation.slidArray.filter(function(e){return e!== $scope.currentSlide});
+        if($scope.currentPresentation.slidArray.length > 0)
+            $scope.currentSlide = $scope.currentPresentation.slidArray[idx];
+        else
+            $scope.currentSlide = null;
+    }
+
     $scope.newPres=function(){
         var pres =  factory.presentationCreation($scope.in_pres.title, $scope.in_pres.desc);
         $scope.presentationMap.payload[pres.id] = pres;
@@ -98,11 +111,15 @@ function eventCrtFnt($scope, $log, $window, factory, comm){
         var savingPres = comm.savePres(idToken, $scope.currentPresentation);
         savingPres.then(
             function () {
+                comm.io.emitReloadPres($scope.socket);
                 $scope.presentationMap.payload[$scope.currentPresentation.id] = $scope.currentPresentation;
                 $scope.presentationMap.array = factory.mapToArray($scope.presentationMap.payload);
+                $scope.setLogMsg("Presentation has been saved");
             },
             function(){
-                console.warn("SERVER COULD NOT SAVE THE PRESENTATION");
+                var msg = "SERVER COULD NOT SAVE THE PRESENTATION";
+                console.warn(msg);
+                $scope.setErrMsg(msg);
             }
         );
     }
@@ -111,8 +128,17 @@ function eventCrtFnt($scope, $log, $window, factory, comm){
         $scope.currentSlide=slide;
         
     }
-    
-    
+
+    $scope.setErrMsg = function(msg){
+        $scope.logMsg = "";
+        $scope.errMsg = msg;
+    }
+
+    $scope.setLogMsg = function(msg){
+        $scope.errMsg = "";
+        $scope.logMsg = msg;
+    }
+
     $scope.onDragComplete=function(data,evt){
        console.log("drag success, data:", data);
     }

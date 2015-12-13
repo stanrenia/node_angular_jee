@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" ng-app="loginApp" ng-controller="loginCtrl">
 <head>
-	<title>Watcher Login</title>
+	<title>ASI PowerPoint Login</title>
 	<!-- CSS -->
 	<link rel="stylesheet" href="css/bootstrap.min.css">
 	<link rel="stylesheet" href="css/login.css">
@@ -52,8 +52,8 @@
 					<div id="divUserList">
 						<button type="button" ng-click="displayUserList()">Show local user list</button>
 						<ul ng-show="showMap.localUserList">
-							<li ng-repeat="user in localUserList">Username: "{{user.login}}" - Password: "{{user.pwd}}" - Role: "{{user.role}}"</li>
 							<span>Note: If you use one of these two username/password, click on "Connection without mySQL"</span>
+							<li ng-repeat="user in localUserList">To connect as {{user.role}}, enter: Username: "{{user.login}}" - Password: "{{user.pwd}}"</li>
 						</ul>
 					</div>
 				</div>

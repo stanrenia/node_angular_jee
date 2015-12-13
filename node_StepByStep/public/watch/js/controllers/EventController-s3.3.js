@@ -19,16 +19,19 @@ function eventCrtFnt($scope, $log, $window, factory, comm){
         $window.location.href = "/login/index.html";
     }
 
-    var available_content=comm.loadImages();
-       available_content.then(
-          function(payload) { 
-              $scope.contentMap.payload = payload;
-              $scope.contentMap.array=factory.mapToArray(payload);
-              console.log("array content: "  +  $scope.contentMap.array);
-          },
-          function(errorPayload) {
-              $log.error('failure loading content', errorPayload);
-          });
+    function load_init_Content(){
+        var available_content=comm.loadImages();
+        available_content.then(
+            function(payload) {
+                $scope.contentMap.payload = payload;
+                $scope.contentMap.array=factory.mapToArray(payload);
+                console.log("array content: "  +  $scope.contentMap.array);
+            },
+            function(errorPayload) {
+                $log.error('failure loading content', errorPayload);
+            });
+    }
+    load_init_Content();
 
     function load_init_Pres(pres_id){
         var firstPresentation=comm.loadPres();
@@ -60,6 +63,8 @@ function eventCrtFnt($scope, $log, $window, factory, comm){
     $scope.update_content = function(pres_id, slide){
         if(!pres_id) return;
         if($scope.presentationMap.payload[pres_id] === undefined){
+            if(pres_id == 1) pres_id = $scope.currentPresentation.id;
+            load_init_Content();
             load_init_Pres(pres_id);
         }
         else{

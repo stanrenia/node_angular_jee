@@ -22,5 +22,19 @@ function getUserFromID(id){
     return userMap[id];
 }
 
+function isUserAdmin(id){
+    var user = getUserFromID(id);
+    if(user === null) return false;
+    return user.role === "admin";
+}
+
+function isUserWatcher(id){
+    var user = getUserFromID(id);
+    if(user === null) return false;
+    return user.role === "watcher";
+}
+
 exports.createUser = createUser;
 exports.getUserFromID = getUserFromID;
+exports.isUserAdmin = isUserAdmin;
+exports.isUserWatcher = isUserWatcher;
